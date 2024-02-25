@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunk_torrta_docs=self.webpackChunk_torrta_docs||[]).push([[200],{2080:s=>{s.exports=JSON.parse('{"name":"docusaurus-plugin-content-docs","id":"default"}')}}]);
