@@ -153,9 +153,9 @@ I wan to trust it will support me during heavy loads.</p>
 I'm fine to write few extra chars if the conceptual model stays clear.</p>
 <p>Client <abbr title="Single Page Application">SPA</abbr>s also suffers bad performance. I believe that conceptual model is so important, it should not be broken by enforcing good performance patterns.
 Framework should remain loyal to the clear model and do its best for performance. In addition provide tools to optimize like optimization hints, refactoring patterns or more aggressive caching config.</p>
-<p>It seems to me <abbr title="React Server Components">RSC</abbr> and NextJS just <mark>broking some of fundamental properties of this conceptual model</mark> because of its performance-first design.
+<p>It seems to me <abbr title="React Server Components">RSC</abbr> and NextJS just <mark>broking some fundamental properties of this conceptual model</mark> because of its performance-first design.
 And I believe it is not necessary to achieve their goals.
-But lets end positive and keep this to the next article.</p>
+But lets stop here and keep this to the next article.</p>
 <p>Thanks for reading.</p>]]></content:encoded>
         </item>
         <item>
