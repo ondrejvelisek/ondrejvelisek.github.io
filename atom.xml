@@ -9,8 +9,8 @@
     <icon>https://ondrejvelisek.github.io/img/favicon.ico</icon>
     <entry>
         <title type="html"><![CDATA[Conceptual model of React and RSC]]></title>
-        <id>https://ondrejvelisek.github.io/2024/02/23/conceptual model-of-react-and-rsc</id>
-        <link href="https://ondrejvelisek.github.io/2024/02/23/conceptual model-of-react-and-rsc"/>
+        <id>https://ondrejvelisek.github.io/2024/02/23/conceptual-model-of-react-and-rsc</id>
+        <link href="https://ondrejvelisek.github.io/2024/02/23/conceptual-model-of-react-and-rsc"/>
         <updated>2024-02-23T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[Building web apps is a complex problem. We need simple high-level mental structures to support such heavy load.]]></summary>
         <content type="html"><![CDATA[<p>Building web apps is a complex problem. We need simple high-level mental structures to support such heavy load.
@@ -22,7 +22,7 @@ What is <code>UI</code>? What is <code>state</code>? What the f* is <em><code>f<
 <li>I reckon the state mutates. But I ignore how it is mutated.</li>
 <li>I show examples of React but most of the following applies for other UI frameworks like Angular, Vue, Svelte, Qwik or Solid.</li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_fF9Z" id="what-is-state">What is <code>state</code>?<a href="https://ondrejvelisek.github.io/2024/02/23/conceptual%20model-of-react-and-rsc#what-is-state" class="hash-link" aria-label="Direct link to what-is-state" title="Direct link to what-is-state">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_fF9Z" id="what-is-state">What is <code>state</code>?<a href="https://ondrejvelisek.github.io/2024/02/23/conceptual-model-of-react-and-rsc#what-is-state" class="hash-link" aria-label="Direct link to what-is-state" title="Direct link to what-is-state">​</a></h2>
 <p>Look again: <code>UI = f(state)</code>. In other words <code>state</code> is what our <code>UI</code> depends on. If dependency changes, we want to change the <code>UI</code>. It is called <strong>reactivity</strong>.</p>
 <p>I believe the state is more than just in-memory local component state (<code>useState</code>) or in-memory global app state (Redux, Jotai, Zustand).
 I'm not alone (
@@ -62,7 +62,7 @@ But lets mark state as "source" when it depends solely on states inaccessible by
 e.g. I cant access some private browser file with local storage data from browser window environment.</p>
 <p>I would like to be explicit and distinguish between in-memory state and all those kind of states.
 I name it for myself a holistic state philosophy and <strong>Holistic state</strong>.</p>
-<h2 class="anchor anchorWithStickyNavbar_fF9Z" id="what-is-ui">What is <code>UI</code>?<a href="https://ondrejvelisek.github.io/2024/02/23/conceptual%20model-of-react-and-rsc#what-is-ui" class="hash-link" aria-label="Direct link to what-is-ui" title="Direct link to what-is-ui">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_fF9Z" id="what-is-ui">What is <code>UI</code>?<a href="https://ondrejvelisek.github.io/2024/02/23/conceptual-model-of-react-and-rsc#what-is-ui" class="hash-link" aria-label="Direct link to what-is-ui" title="Direct link to what-is-ui">​</a></h2>
 <p>It is what users perceive with their senses. Usually with eyes on screen. On web it is represented with <strong>DOM</strong>.</p>
 <p>The wilderness out there is more diverse.
 Our user might me a machine like search indexing bot. But they also work on DOM elements and attributes.
@@ -74,7 +74,7 @@ Lets simplify and stick with DOM only. Worth to say following applies to other U
 In React and Vue those tools are JSX and VDOM. In Solid it is signal dependency graph.</p>
 <p>Note I cassified DOM as both <code>UI</code> and <code>holistic_state</code>. If we use DOM as source state and let our UI depends on it, we create cyclic dependency.
 Sometimes it is necessary e.g. when measuring text width. Be careful in such situation to not create infinite loops. Same applies for URL.</p>
-<h2 class="anchor anchorWithStickyNavbar_fF9Z" id="what-the-f-is-f">What the f* is <em><code>f</code></em>?<a href="https://ondrejvelisek.github.io/2024/02/23/conceptual%20model-of-react-and-rsc#what-the-f-is-f" class="hash-link" aria-label="Direct link to what-the-f-is-f" title="Direct link to what-the-f-is-f">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_fF9Z" id="what-the-f-is-f">What the f* is <em><code>f</code></em>?<a href="https://ondrejvelisek.github.io/2024/02/23/conceptual-model-of-react-and-rsc#what-the-f-is-f" class="hash-link" aria-label="Direct link to what-the-f-is-f" title="Direct link to what-the-f-is-f">​</a></h2>
 <p><em><code>f</code></em> is something which connects <code>state</code> and <code>UI</code>.
 You may say it is component tree with its render function. And you are <abbr title="In My Opinion">IMO</abbr> partialy right.</p>
 <p>Because this <em><code>f</code></em> function usually produces many UI pieces,
@@ -89,7 +89,7 @@ it is "neccesity" to split the mental load into reusable smaller <code>f</code>s
 <li><strong>Produce UI description</strong> in a form of JSX which is then consumed by VDOM.</li>
 </ul>
 <p>I said partialy. Components does not (usually) directly connects to states. They just receives a value/connection.</p>
-<h2 class="anchor anchorWithStickyNavbar_fF9Z" id="connecting-state">Connecting state<a href="https://ondrejvelisek.github.io/2024/02/23/conceptual%20model-of-react-and-rsc#connecting-state" class="hash-link" aria-label="Direct link to Connecting state" title="Direct link to Connecting state">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_fF9Z" id="connecting-state">Connecting state<a href="https://ondrejvelisek.github.io/2024/02/23/conceptual-model-of-react-and-rsc#connecting-state" class="hash-link" aria-label="Direct link to Connecting state" title="Direct link to Connecting state">​</a></h2>
 <p>We need some way to choose states our component depends on. We want to subscribe/observe changes and execute derivation and rendering logic with new values.</p>
 <p>Hooks do a great job with its smart <code>useEffect</code> and <code>useRef</code>. Much hated for its ergonomics, but <abbr title="In My Opinion">IMO</abbr> does the job conceptually right.
 Lets call custom hooks using <code>useEffect</code> and <code>useRef</code> <strong>connection hooks</strong>.</p>
@@ -107,7 +107,7 @@ Then caching, invalidation and optimistic update mechanisms must enter the scene
 But call them connecting hooks anyway.</p>
 <p>There are hooks which creates state itself like <code>useState</code> and <code>useReducer</code>. And simultaneously connects to it.
 But lets stick with connecting word only.</p>
-<h2 class="anchor anchorWithStickyNavbar_fF9Z" id="developer-experience">Developer experience<a href="https://ondrejvelisek.github.io/2024/02/23/conceptual%20model-of-react-and-rsc#developer-experience" class="hash-link" aria-label="Direct link to Developer experience" title="Direct link to Developer experience">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_fF9Z" id="developer-experience">Developer experience<a href="https://ondrejvelisek.github.io/2024/02/23/conceptual-model-of-react-and-rsc#developer-experience" class="hash-link" aria-label="Direct link to Developer experience" title="Direct link to Developer experience">​</a></h2>
 <p>So the real world picture of <code>UI = f(state)</code> for App developers could be squeezed into:</p>
 <div class="language-js codeBlockContainer_ZGJx theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_qZBB"><pre tabindex="0" class="prism-code language-js codeBlock_TAPP thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_AdAo"><span class="token-line" style="color:#bfc7d5"><span class="token constant" style="color:rgb(130, 170, 255)">DOM</span><span class="token plain"> </span><span class="token operator" style="color:rgb(137, 221, 255)">=</span><span class="token plain"> </span><span class="token function" style="color:rgb(130, 170, 255)">render</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token function" style="color:rgb(130, 170, 255)">derive</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token function" style="color:rgb(130, 170, 255)">connect</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token plain">holistic_state</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><br></span></code></pre><div class="buttonGroup_TNwR"><button type="button" aria-label="Copy code to clipboard" title="Copy" class="clean-btn"><span class="copyButtonIcons_MVhB" aria-hidden="true"><svg viewBox="0 0 24 24" class="copyButtonIcon_yxgH"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg viewBox="0 0 24 24" class="copyButtonSuccessIcon_QJLJ"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div>
 <p>It is super simple mental model for such a complex problem as web app. It is <strong>conceptually clean and mentally relieving</strong>.
