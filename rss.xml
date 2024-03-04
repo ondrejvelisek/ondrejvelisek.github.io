@@ -19,7 +19,7 @@ These structures allow us to offload unnecessary details from our brains, so we 
 <code>UI = f(state)</code> is one of them. Every one of us knows this formula. But do you know what it reflects in the real world?
 What is <code>UI</code>? What is <code>state</code>? What the f* is <em><code>f</code></em>? And how is it affected by RSC (React Server Components)? Here is my view.</p>
 <p><img decoding="async" loading="lazy" alt="Holistic state philosophy" src="https://ondrejvelisek.github.io/assets/images/holistic-state-562930c5eec9df368ea3c02de81cc2b3.png" width="1791" height="820" class="img__Ss2"></p>
-<p>First of all:</p>
+<p>Initial clarifications:</p>
 <ul>
 <li>I reckon the state mutates, but I ignore how it is mutated.</li>
 <li>I show examples of React, but most of the following applies to other UI frameworks like Angular, Vue, Svelte, Qwik, or Solid.</li>
