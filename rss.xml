@@ -9,154 +9,134 @@
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
         <item>
-            <title><![CDATA[Conceptual model of React and RSC]]></title>
+            <title><![CDATA[Conceptual Model of React and RSC]]></title>
             <link>https://ondrejvelisek.github.io/2024/03/03/conceptual-model-of-react-and-rsc</link>
             <guid>https://ondrejvelisek.github.io/2024/03/03/conceptual-model-of-react-and-rsc</guid>
             <pubDate>Sun, 03 Mar 2024 00:00:00 GMT</pubDate>
-            <description><![CDATA[Building web apps is a complex problem. We need simple high-level mental structures to support such heavy load.]]></description>
-            <content:encoded><![CDATA[<p>Building web apps is a complex problem. We need simple high-level mental structures to support such heavy load.
-They allow us to offload unnecessary details out of our brains. So we can focus on important parts of our code.
+            <description><![CDATA[Building web apps is a complex problem. We need simple high-level mental structures to support such a heavy load.]]></description>
+            <content:encoded><![CDATA[<p>Building web apps is a complex problem. We need simple high-level mental structures to support such a heavy load.
+These structures allow us to offload unnecessary details from our brains, so we can focus on the important parts of our code.
 <code>UI = f(state)</code> is one of them. Every one of us knows this formula. But do you know what it reflects in the real world?
-What is <code>UI</code>? What is <code>state</code>? What the f* is <em><code>f</code></em>? And how it is affected by RSC (React Server Components)? Here is my view.</p>
+What is <code>UI</code>? What is <code>state</code>? What the f* is <em><code>f</code></em>? And how is it affected by RSC (React Server Components)? Here is my view.</p>
 <p>First of all:</p>
 <ul>
-<li>I reckon the state mutates. But I ignore how it is mutated.</li>
-<li>I show examples of React but most of the following applies for other UI frameworks like Angular, Vue, Svelte, Qwik or Solid.</li>
+<li>I reckon the state mutates, but I ignore how it is mutated.</li>
+<li>I show examples of React, but most of the following applies to other UI frameworks like Angular, Vue, Svelte, Qwik, or Solid.</li>
 </ul>
 <h2 class="anchor anchorWithStickyNavbar_fF9Z" id="what-is-state">What is <code>state</code>?<a href="https://ondrejvelisek.github.io/2024/03/03/conceptual-model-of-react-and-rsc#what-is-state" class="hash-link" aria-label="Direct link to what-is-state" title="Direct link to what-is-state">​</a></h2>
-<p>Look again: <code>UI = f(state)</code>. In other words <code>state</code> is what our <code>UI</code> depends on. If dependency changes, we want to change the <code>UI</code>. It is called <strong>reactivity</strong>.</p>
-<p>I believe the state is more than just in-memory local component state (<code>useState</code>) or in-memory global app state (Redux, Jotai, Zustand).
+<p>Let's reconsider: <code>UI = f(state)</code>. In other words, <code>state</code> is what our <code>UI</code> depends on. If a dependency changes, we want to change the <code>UI</code>. This phenomenon is called <strong>reactivity</strong>.</p>
+<p>I believe that state encompasses more than just in-memory local component state (<code>useState</code>) or in-memory global app state (Redux, Jotai, Zustand).
 I'm not alone (
 <a href="https://tkdodo.eu/blog/react-query-as-a-state-manager" target="_blank" rel="noopener noreferrer">TkDodo</a>,
 <a href="https://www.youtube.com/watch?v=ukpgxEemXsk" target="_blank" rel="noopener noreferrer">ByteGrad (YouTube)</a>,
 <a href="https://x.com/kentcdodds/status/1349173470567964673" target="_blank" rel="noopener noreferrer">Kent C. Dodds</a>,
 <a href="https://daverupert.com/2024/02/ui-states/" target="_blank" rel="noopener noreferrer">Dave Rupert</a>,
 <a href="https://overreacted.io/the-two-reacts/" target="_blank" rel="noopener noreferrer">Dan Abramov</a>
-). Many devs agrees at least URL and server data are some kind of state too. But I think it is much more.</p>
-<p>Lets place some <code>UI</code> examples:</p>
+). Many developers agree that at least the URL and server data constitute some kind of state too. But I believe it is much more.</p>
+<p>Let's consider some <code>UI</code> examples:</p>
 <ul>
-<li>Blog post UI depends on slug present in <strong>URL</strong> address.</li>
+<li>Blog post UI depends on the slug present in the <strong>URL</strong> address.</li>
 <li>Server files UI explorer depends on <strong>server</strong> files.</li>
-<li>Newest movies list UI depends on <strong>third-party</strong> resource of OMDB.</li>
+<li>The newest movies list UI relies on the <strong>third-party</strong> resource of OMDB.</li>
 <li>Ticking clock UI depends on <strong>time</strong>.</li>
-<li>Drawing canvas UI depends on mouse position of user <strong>input device</strong>.</li>
-<li>User profile UI depends on session token stored in <strong>cookie</strong>.</li>
-<li>Keep me signed on this device UI depends on flag in <strong>local storage</strong>.</li>
-<li>OS prefered dark mode UI depends on <strong>OS setting</strong>.</li>
-<li>Devtools debug UI depends on <strong>env variable</strong>.</li>
-<li>Panoramatic background UI depends on scroll position of <strong>DOM</strong> element.</li>
-<li>... OK you got the idea.</li>
+<li>Drawing canvas UI relies on the mouse position of the user's <strong>input device</strong>.</li>
+<li>User profile UI depends on the session token stored in a <strong>cookie</strong>.</li>
+<li>The "Keep me signed in on this device" UI depends on a flag in <strong>local storage</strong>.</li>
+<li>OS preferred dark mode UI depends on the <strong>OS setting</strong>.</li>
+<li>Devtools debug UI depends on an <strong>env variable</strong>.</li>
+<li>Panoramic background UI depends on the scroll position of a <strong>DOM</strong> element.</li>
+<li>... Got the idea?</li>
 </ul>
-<p>I call those states <strong>source states</strong>. Its important to say that state may be <em>derived</em>. Examples:</p>
+<p>I refer to these states as <strong>source states</strong>. It's important to note that a state may be <em>derived</em>. For example:</p>
 <ul>
-<li>Current post <em>slug</em> depends on <strong>URL</strong>.</li>
-<li>Current post <em>minutes read</em> depends on <em>slug</em> and <strong>server files</strong>.</li>
-<li>Current <em>user role</em> depends on authorization data in <strong>server database</strong> and session token from <strong>cookie</strong>.</li>
-<li><em>Prefered dark mode</em> depends on <strong>local storage</strong> and <strong>OS setting</strong> (storage as user preference and OS as default).</li>
-<li>minutes value in pausible stopwatch depends on <strong>time</strong> and spacebar <strong>pressed key</strong></li>
-<li>... got it?</li>
+<li>The current post <em>slug</em> depends on the <strong>URL</strong>.</li>
+<li>The current post <em>minutes read</em> depends on the <em>slug</em> and <strong>server files</strong>.</li>
+<li>The current <em>user role</em> depends on authorization data in the <strong>server database</strong> and the session token from the <strong>cookie</strong>.</li>
+<li>The <em>preferred dark mode</em> depends on <strong>local storage</strong> and the <strong>OS setting</strong> (storage as user preference and OS as default).</li>
+<li>The minutes value in a pausable stopwatch depends on <strong>time</strong> and the spacebar <strong>pressed key</strong>.</li>
+<li>... Ok. You got it.</li>
 </ul>
-<p>Derived state depends on another state. And should change when its dependencies changes.
-In other words, be reactive. Here is a great deep-dive from <a href="https://reacttraining.com/blog/derived-state" target="_blank" rel="noopener noreferrer">React Training - Derived State</a>.</p>
-<p>The boundary between <strong>source</strong> and <em>derived</em> states are blurry. e.g. server database, local storage, OS settings, all of those depends on file system data.
-But lets mark state as "source" when it depends solely on states inaccessible by available technologies.
-e.g. I cant access some private browser file with local storage data from browser window environment.</p>
-<p>I would like to be explicit and distinguish between in-memory state and all those kind of states.
-I name it for myself a holistic state philosophy and <strong>Holistic state</strong>.</p>
+<p>Derived state depends on another state and should change when its dependencies change. In other words, it should be reactive. You can find a great deep-dive into this topic on <a href="https://reacttraining.com/blog/derived-state" target="_blank" rel="noopener noreferrer">React Training - Derived State</a>.</p>
+<p>The boundary between <strong>source</strong> and <em>derived</em> states is blurry. For example, the server database, local storage, OS settings, all of those depend on file system data.
+But let's mark state as "source" when it depends solely on states inaccessible by available technologies. For example, I can't access some private browser file with local storage data from the browser window environment.</p>
+<p>I would like to be explicit and distinguish between in-memory state and all those kinds of states.
+For myself, I name it a holistic state philosophy and <strong>Holistic state</strong>.</p>
 <h2 class="anchor anchorWithStickyNavbar_fF9Z" id="what-is-ui">What is <code>UI</code>?<a href="https://ondrejvelisek.github.io/2024/03/03/conceptual-model-of-react-and-rsc#what-is-ui" class="hash-link" aria-label="Direct link to what-is-ui" title="Direct link to what-is-ui">​</a></h2>
-<p>It is what users perceive with their senses. Usually with eyes on screen. On web it is represented with <strong>DOM</strong>.</p>
+<p>It is what users perceive with their senses, usually with their eyes on the screen. On the web, it is represented with the <strong>DOM</strong>.</p>
 <p>The wilderness out there is more diverse.
-Our user might me a machine like search indexing bot. But they also work on DOM elements and attributes.
-There could be assistive technologies like screen reader. Working on DOM either.
-Very important piece of UI is URL in browser address bar. Since it is always in sync with URL state, I like to think about it as source state rather than UI.
-User also perceives playing sounds, haptic vibration feedback, flashlight etc.
-Lets simplify and stick with DOM only. Worth to say following applies to other UI pieces similarly.</p>
-<p>As dev I expect framework to provide tools to describe UI and update DOM when description changes.
-In React and Vue those tools are JSX and VDOM. In Solid it is signal dependency graph.</p>
-<p>Note I cassified DOM as both <code>UI</code> and <code>holistic_state</code>. If we use DOM as source state and let our UI depends on it, we create cyclic dependency.
-Sometimes it is necessary e.g. when measuring text width. Be careful in such situation to not create infinite loops. Same applies for URL.</p>
+Our user might be a machine like a search indexing bot, but they also work on DOM elements and attributes.
+There could be assistive technologies like a screen reader, working on the DOM as well.
+A very important piece of UI is the URL in the browser address bar. Since it is always in sync with the URL state, I like to think about it as a source state rather than UI.
+Users also perceive playing sounds, haptic vibration feedback, flashlight, etc.
+Let's simplify and stick with DOM only. It's worth mentioning that the following applies to other UI pieces similarly.</p>
+<p>As a developer, I expect the framework to provide tools to describe UI and update the DOM when the description changes.
+In React and Vue, those tools are JSX and VDOM. In Solid, it is a signal dependency graph.</p>
+<p>Note: I classified DOM as both UI and source state. If we use DOM as a source state and let our UI depend on it, we create a cyclic dependency.
+Sometimes it is necessary, e.g., when measuring text width. Be careful in such situations to not create infinite loops. The same applies to the URL.</p>
 <h2 class="anchor anchorWithStickyNavbar_fF9Z" id="what-the-f-is-f">What the f* is <em><code>f</code></em>?<a href="https://ondrejvelisek.github.io/2024/03/03/conceptual-model-of-react-and-rsc#what-the-f-is-f" class="hash-link" aria-label="Direct link to what-the-f-is-f" title="Direct link to what-the-f-is-f">​</a></h2>
-<p><em><code>f</code></em> is something which connects <code>state</code> and <code>UI</code>.
-You may say it is component tree with its render function. And you are <abbr title="In My Opinion">IMO</abbr> partialy right.</p>
+<p><em><code>f</code></em> is something that connects <code>state</code> and <code>UI</code>.
+You may say it is the component tree with its render function. And you are <abbr title="In My Opinion">IMO</abbr> partially right.</p>
 <p>Because this <em><code>f</code></em> function usually produces many UI pieces,
-it is "neccesity" to split the mental load into reusable smaller <code>f</code>s - components.
-<a href="https://overreacted.io/a-chain-reaction/" target="_blank" rel="noopener noreferrer">Dan Abramov</a> great article about it.</p>
+it is a "necessity" to split the mental load into reusable smaller <code>f</code>s - components.
+<a href="https://overreacted.io/a-chain-reaction/" target="_blank" rel="noopener noreferrer">Dan Abramov</a> wrote a great article about it.</p>
 <p>Example. React components ergonomics.</p>
-<div class="language-tsx codeBlockContainer_ZGJx theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_qZBB"><pre tabindex="0" class="prism-code language-tsx codeBlock_TAPP thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_AdAo"><span class="token-line" style="color:#bfc7d5"><span class="token plain">fucntion </span><span class="token function" style="color:rgb(130, 170, 255)">Post</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token plain">slug</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(199, 146, 234)">{</span><span class="token plain">                  </span><span class="token comment" style="color:rgb(105, 112, 152);font-style:italic">// name and state received via props</span><span class="token plain"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">    </span><span class="token keyword" style="font-style:italic">const</span><span class="token plain"> posts </span><span class="token operator" style="color:rgb(137, 221, 255)">=</span><span class="token plain"> </span><span class="token function" style="color:rgb(130, 170, 255)">useQuery</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token plain">fetchPosts</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token plain"> </span><span class="token comment" style="color:rgb(105, 112, 152);font-style:italic">// state received via hook</span><span class="token plain"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">    </span><span class="token keyword" style="font-style:italic">const</span><span class="token plain"> post </span><span class="token operator" style="color:rgb(137, 221, 255)">=</span><span class="token plain"> posts</span><span class="token punctuation" style="color:rgb(199, 146, 234)">[</span><span class="token plain">slug</span><span class="token punctuation" style="color:rgb(199, 146, 234)">]</span><span class="token plain">           </span><span class="token comment" style="color:rgb(105, 112, 152);font-style:italic">// derivation logic</span><span class="token plain"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">    </span><span class="token keyword" style="font-style:italic">return</span><span class="token plain"> </span><span class="token tag punctuation" style="color:rgb(199, 146, 234)">&lt;</span><span class="token tag" style="color:rgb(255, 85, 114)">div</span><span class="token tag punctuation" style="color:rgb(199, 146, 234)">&gt;</span><span class="token punctuation" style="color:rgb(199, 146, 234)">{</span><span class="token plain">post</span><span class="token punctuation" style="color:rgb(199, 146, 234)">}</span><span class="token tag punctuation" style="color:rgb(199, 146, 234)">&lt;/</span><span class="token tag" style="color:rgb(255, 85, 114)">div</span><span class="token tag punctuation" style="color:rgb(199, 146, 234)">&gt;</span><span class="token plain">           </span><span class="token comment" style="color:rgb(105, 112, 152);font-style:italic">// JSX UI description</span><span class="token plain"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"></span><span class="token punctuation" style="color:rgb(199, 146, 234)">}</span><br></span></code></pre><div class="buttonGroup_TNwR"><button type="button" aria-label="Copy code to clipboard" title="Copy" class="clean-btn"><span class="copyButtonIcons_MVhB" aria-hidden="true"><svg viewBox="0 0 24 24" class="copyButtonIcon_yxgH"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg viewBox="0 0 24 24" class="copyButtonSuccessIcon_QJLJ"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div>
+<div class="language-tsx codeBlockContainer_ZGJx theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_qZBB"><pre tabindex="0" class="prism-code language-tsx codeBlock_TAPP thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_AdAo"><span class="token-line" style="color:#bfc7d5"><span class="token keyword" style="font-style:italic">function</span><span class="token plain"> </span><span class="token function" style="color:rgb(130, 170, 255)">Post</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token plain">slug</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(199, 146, 234)">{</span><span class="token plain">                  </span><span class="token comment" style="color:rgb(105, 112, 152);font-style:italic">// name and state received via props</span><span class="token plain"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">    </span><span class="token keyword" style="font-style:italic">const</span><span class="token plain"> posts </span><span class="token operator" style="color:rgb(137, 221, 255)">=</span><span class="token plain"> </span><span class="token function" style="color:rgb(130, 170, 255)">useQuery</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token plain">fetchPosts</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token plain"> </span><span class="token comment" style="color:rgb(105, 112, 152);font-style:italic">// state received via hook</span><span class="token plain"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">    </span><span class="token keyword" style="font-style:italic">const</span><span class="token plain"> post </span><span class="token operator" style="color:rgb(137, 221, 255)">=</span><span class="token plain"> posts</span><span class="token punctuation" style="color:rgb(199, 146, 234)">[</span><span class="token plain">slug</span><span class="token punctuation" style="color:rgb(199, 146, 234)">]</span><span class="token plain">           </span><span class="token comment" style="color:rgb(105, 112, 152);font-style:italic">// derivation logic</span><span class="token plain"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">    </span><span class="token keyword" style="font-style:italic">return</span><span class="token plain"> </span><span class="token tag punctuation" style="color:rgb(199, 146, 234)">&lt;</span><span class="token tag" style="color:rgb(255, 85, 114)">div</span><span class="token tag punctuation" style="color:rgb(199, 146, 234)">&gt;</span><span class="token punctuation" style="color:rgb(199, 146, 234)">{</span><span class="token plain">post</span><span class="token punctuation" style="color:rgb(199, 146, 234)">}</span><span class="token tag punctuation" style="color:rgb(199, 146, 234)">&lt;/</span><span class="token tag" style="color:rgb(255, 85, 114)">div</span><span class="token tag punctuation" style="color:rgb(199, 146, 234)">&gt;</span><span class="token plain">           </span><span class="token comment" style="color:rgb(105, 112, 152);font-style:italic">// JSX UI description</span><span class="token plain"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"></span><span class="token punctuation" style="color:rgb(199, 146, 234)">}</span><br></span></code></pre><div class="buttonGroup_TNwR"><button type="button" aria-label="Copy code to clipboard" title="Copy" class="clean-btn"><span class="copyButtonIcons_MVhB" aria-hidden="true"><svg viewBox="0 0 24 24" class="copyButtonIcon_yxgH"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg viewBox="0 0 24 24" class="copyButtonSuccessIcon_QJLJ"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div>
 <ul>
-<li><strong>Name</strong> of function to be referencable.</li>
-<li><strong>Receive state</strong> via props or hooks (or higher order components).</li>
-<li><strong>Derive state</strong> before JSX is produced. Right within render function or separated into custom function.</li>
-<li><strong>Produce UI description</strong> in a form of JSX which is then consumed by VDOM.</li>
+<li><strong>Name</strong> of the function to be referenceable.</li>
+<li><strong>Receive state</strong> via props or hooks (or higher-order components).</li>
+<li><strong>Derive state</strong> before JSX is produced. Right within the render function or separated into a custom function.</li>
+<li><strong>Produce UI description</strong> in the form of JSX which is then consumed by VDOM.</li>
 </ul>
-<p>I said partialy. Components does not (usually) directly connects to states. They just receives a value/connection.</p>
-<h2 class="anchor anchorWithStickyNavbar_fF9Z" id="connecting-state">Connecting state<a href="https://ondrejvelisek.github.io/2024/03/03/conceptual-model-of-react-and-rsc#connecting-state" class="hash-link" aria-label="Direct link to Connecting state" title="Direct link to Connecting state">​</a></h2>
-<p>We need some way to choose states our component depends on. We want to subscribe/observe changes and execute derivation and rendering logic with new values.</p>
-<p>Hooks do a great job with its smart <code>useEffect</code> and <code>useRef</code>. Much hated for its ergonomics, but <abbr title="In My Opinion">IMO</abbr> does the job conceptually right.
-Lets call custom hooks using <code>useEffect</code> and <code>useRef</code> <strong>connection hooks</strong>.</p>
-<p>Example. React connection hook ergonomics.</p>
+<p>I said partially. Components do not (usually) directly connect to states. They just receive a value/connection.</p>
+<h2 class="anchor anchorWithStickyNavbar_fF9Z" id="connecting-states">Connecting States<a href="https://ondrejvelisek.github.io/2024/03/03/conceptual-model-of-react-and-rsc#connecting-states" class="hash-link" aria-label="Direct link to Connecting States" title="Direct link to Connecting States">​</a></h2>
+<p>We need a way to choose the states upon which our component depends. We want to subscribe/observe changes and execute derivation and rendering logic with new values.</p>
+<p>Hooks do an excellent job with their smart <code>useEffect</code> and <code>useRef</code>. Much maligned for their ergonomics, but in my opinion, they get the conceptual job right. Let's refer to custom hooks using <code>useEffect</code> and <code>useRef</code> as <strong>connecting hooks</strong>.</p>
+<p>React connecting hook ergonomics example.</p>
 <div class="language-tsx codeBlockContainer_ZGJx theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_qZBB"><pre tabindex="0" class="prism-code language-tsx codeBlock_TAPP thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_AdAo"><span class="token-line" style="color:#bfc7d5"><span class="token comment" style="color:rgb(105, 112, 152);font-style:italic">// name and config received via props</span><span class="token plain"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">fucntion </span><span class="token function" style="color:rgb(130, 170, 255)">useStopwatch</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token plain">delay</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(199, 146, 234)">{</span><span class="token plain">          </span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">    </span><span class="token keyword" style="font-style:italic">const</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(199, 146, 234)">[</span><span class="token plain">ticks</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"> setTicks</span><span class="token punctuation" style="color:rgb(199, 146, 234)">]</span><span class="token plain"> </span><span class="token operator" style="color:rgb(137, 221, 255)">=</span><span class="token plain"> </span><span class="token function" style="color:rgb(130, 170, 255)">useState</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token number" style="color:rgb(247, 140, 108)">0</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token plain"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">    </span><span class="token function" style="color:rgb(130, 170, 255)">useEffect</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token plain"> </span><span class="token arrow operator" style="color:rgb(137, 221, 255)">=&gt;</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(199, 146, 234)">{</span><span class="token plain">         </span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">        </span><span class="token comment" style="color:rgb(105, 112, 152);font-style:italic">// subscribing to real world state (time)            </span><span class="token plain"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">        </span><span class="token keyword" style="font-style:italic">const</span><span class="token plain"> timer </span><span class="token operator" style="color:rgb(137, 221, 255)">=</span><span class="token plain"> </span><span class="token function" style="color:rgb(130, 170, 255)">setInterval</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token plain"> </span><span class="token arrow operator" style="color:rgb(137, 221, 255)">=&gt;</span><span class="token plain"> </span><span class="token function" style="color:rgb(130, 170, 255)">setTicks</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token plain">prev </span><span class="token arrow operator" style="color:rgb(137, 221, 255)">=&gt;</span><span class="token plain"> prev </span><span class="token operator" style="color:rgb(137, 221, 255)">+</span><span class="token plain"> </span><span class="token number" style="color:rgb(247, 140, 108)">1</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"> delay</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token plain"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">        </span><span class="token keyword" style="font-style:italic">return</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token plain"> </span><span class="token arrow operator" style="color:rgb(137, 221, 255)">=&gt;</span><span class="token plain"> </span><span class="token function" style="color:rgb(130, 170, 255)">clearInterval</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token plain">timer</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token plain"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">    </span><span class="token punctuation" style="color:rgb(199, 146, 234)">}</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(199, 146, 234)">[</span><span class="token plain">delay</span><span class="token punctuation" style="color:rgb(199, 146, 234)">]</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token plain"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">    </span><span class="token comment" style="color:rgb(105, 112, 152);font-style:italic">// Returning reactive state</span><span class="token plain"></span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain">    </span><span class="token keyword" style="font-style:italic">return</span><span class="token plain"> ticks                          </span><br></span><span class="token-line" style="color:#bfc7d5"><span class="token plain"></span><span class="token punctuation" style="color:rgb(199, 146, 234)">}</span><br></span></code></pre><div class="buttonGroup_TNwR"><button type="button" aria-label="Copy code to clipboard" title="Copy" class="clean-btn"><span class="copyButtonIcons_MVhB" aria-hidden="true"><svg viewBox="0 0 24 24" class="copyButtonIcon_yxgH"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg viewBox="0 0 24 24" class="copyButtonSuccessIcon_QJLJ"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div>
-<p>Many libraries like <code>tanstack-query</code> for external resources, <code>react-router</code> for URL or <code>react-use</code> for many kind of states were created.
-They allows us (app devs) to connect to the source state with one line of code from within the component. And dont car much how.</p>
-<p>Those connecting hooks are a missing glue between state and a component render logic.
-They subscribe to the state changes and make necessary derivation and rednering logic re-run accordingly.</p>
-<p><abbr title="In My Opinion">IMO</abbr> observer pattern is best for DX. But sometimes it is not possible or desired. Usually for performance.
-Typically for states far away from client like server data.
-Even for them we have mechanisms like websockets or long polling.
-But usually we fallback to initial fetch during either component mount, server request or build.
-Then caching, invalidation and optimistic update mechanisms must enter the scene.
-But call them connecting hooks anyway.</p>
-<p>There are hooks which creates state itself like <code>useState</code> and <code>useReducer</code>. And simultaneously connects to it.
-But lets stick with connecting word only.</p>
+<p>Many libraries like <code>tanstack-query</code> for external resources, <code>react-router</code> for URLs, or <code>react-use</code> for various kinds of states have been created. They allow us (app devs) to connect to the source state with just one line of code from within the component. And they don't care much about how.</p>
+<p>These connecting hooks are the missing glue between state and component rendering logic. They subscribe to state changes and rerun the necessary derivation and rendering logic accordingly.</p>
+<p>In my opinion, the observer pattern is best for developer experience (DX). But sometimes it is not possible or desired, usually for performance reasons. Typically, this is the case for states far away from the client, like server data. Even for them, we have mechanisms like websockets or long polling. But usually, we fall back to the initial fetch during either component mount, server request, or build. Then caching, invalidation, and optimistic update mechanisms must come into play. But let's still call them connecting hooks anyway.</p>
+<p>There are hooks that create state themselves, like <code>useState</code> and <code>useReducer</code>, and simultaneously connect to it. But let's stick with the word "connecting" only.</p>
 <p><img decoding="async" loading="lazy" alt="Holistic state philosophy" src="https://ondrejvelisek.github.io/assets/images/holistic-state-562930c5eec9df368ea3c02de81cc2b3.png" width="1791" height="820" class="img__Ss2"></p>
-<h2 class="anchor anchorWithStickyNavbar_fF9Z" id="developer-experience">Developer experience<a href="https://ondrejvelisek.github.io/2024/03/03/conceptual-model-of-react-and-rsc#developer-experience" class="hash-link" aria-label="Direct link to Developer experience" title="Direct link to Developer experience">​</a></h2>
-<p>So the real world picture of <code>UI = f(state)</code> for App developers could be squeezed into:</p>
+<h2 class="anchor anchorWithStickyNavbar_fF9Z" id="developer-experience">Developer Experience<a href="https://ondrejvelisek.github.io/2024/03/03/conceptual-model-of-react-and-rsc#developer-experience" class="hash-link" aria-label="Direct link to Developer Experience" title="Direct link to Developer Experience">​</a></h2>
+<p>So the real-world picture of <code>UI = f(state)</code> for app developers could be condensed into:</p>
 <div class="language-js codeBlockContainer_ZGJx theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_qZBB"><pre tabindex="0" class="prism-code language-js codeBlock_TAPP thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_AdAo"><span class="token-line" style="color:#bfc7d5"><span class="token constant" style="color:rgb(130, 170, 255)">DOM</span><span class="token plain"> </span><span class="token operator" style="color:rgb(137, 221, 255)">=</span><span class="token plain"> </span><span class="token function" style="color:rgb(130, 170, 255)">render</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token function" style="color:rgb(130, 170, 255)">derive</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token function" style="color:rgb(130, 170, 255)">connect</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token plain">holistic_state</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><br></span></code></pre><div class="buttonGroup_TNwR"><button type="button" aria-label="Copy code to clipboard" title="Copy" class="clean-btn"><span class="copyButtonIcons_MVhB" aria-hidden="true"><svg viewBox="0 0 24 24" class="copyButtonIcon_yxgH"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg viewBox="0 0 24 24" class="copyButtonSuccessIcon_QJLJ"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div>
-<p>It is super simple mental model for such a complex problem as web app. It is <strong>conceptually clean and mentally relieving</strong>.
-Modern client-side <abbr title="Single Page Application">SPA</abbr> follows this conceptual model quite precisly.
-I believe many devs love React 16.8+ (hooks introduced) because of this mental model. Me included.
-It speeds up developments, saves time and money.</p>
-<p>But to model be helpful some additional properties must be meet.</p>
+<p>It is a super simple mental model for such a complex problem as a web app. It is <strong>conceptually clean and mentally relieving</strong>. Modern client-side <abbr title="Single Page Application">SPA</abbr>s follow this conceptual model quite precisely. I believe many devs love React 16.8+ (hooks introduced) because of this mental model, myself included. It speeds up development, saves time, and money.</p>
+<p>But for the model to be helpful, some additional properties must be met:</p>
 <ol>
 <li>
 <p><strong>Composable</strong> - Ability to compose components into the full UI.<br>
 Ability to <mark>place any component into any other component</mark>.</p>
 </li>
 <li>
-<p><strong>Reusable</strong> - Ability to define name and reuse component in different place.<br>
-Also ability to pass arbitrary configuration (possibly reactive state) to adjust its behavior (props).</p>
+<p><strong>Reusable</strong> - Ability to define a name and reuse a component in a different place.<br>
+Also, the ability to pass arbitrary configuration (possibly reactive state) to adjust its behavior (props).</p>
 </li>
 <li>
-<p><strong>Colocated</strong> - Name, render logic, necessary state connetions, state derivation logic, documentation etc.<br>
-Devs should be able to <mark>place all those dependencies inside component</mark>.<br>
-If not, devs jumps back and forth in a codebase. Inconvenient.</p>
+<p><strong>Colocated</strong> - Name, render logic, necessary state connections, state derivation logic, documentation, etc.<br>
+Devs should be able to <mark>place all those dependencies inside a component</mark>.<br>
+If not, devs jump back and forth in a codebase. Inconvenient.</p>
 </li>
 <li>
-<p><strong>Encapsulated</strong> - Ability to work on a component independently by default. Opt-in to break barier.<br>
-If not met, dev must mentaly thing about other code pieces.
-Note: this is broken by React cascading memoization. Frustraiting.</p>
+<p><strong>Encapsulated</strong> - Ability to work on a component independently by default. Opt-in to break the barrier.<br>
+If not met, devs must mentally think about other code pieces.
+Note: this is broken by React cascading memoization. Frustrating.</p>
 </li>
 <li>
-<p><strong>Reactive</strong> - Component must react on connected state the dev chooses.<br>
+<p><strong>Reactive</strong> - Component must react to connected state the dev chooses.<br>
 <mark>Any component must be able to connect to any state</mark>. The same applies for derivation hooks.<br>
-If some rules are required, it makes the development jammed.</p>
+If some rules are required, it makes development jammed.</p>
 </li>
 <li>
-<p><strong>Arbitrary</strong> - The components boundaries must obey to the dev needs.<br>
-<mark>Nothing must forces component to split (or not to split)</mark>.<br>
+<p><strong>Arbitrary</strong> - The component's boundaries must obey the dev's needs.<br>
+<mark>Nothing must force a component to split (or not to split)</mark>.<br>
 Same for derivation hooks. It destroys their purpose otherwise.</p>
 </li>
 </ol>
-<p>Why all of it matters? Because the Conceptual model needs to be solid. All the time.
-If we develop some complex logic with those principles in mind it cant happen due to broken principles that we need to refactor.
-I wan to trust it will support me during heavy loads.</p>
-<p>I can handle some configuration and syntax overhead like useEffect, css integration or Webpack.
-I'm fine to write few extra chars if the conceptual model stays clear.</p>
-<p>Client <abbr title="Single Page Application">SPA</abbr>s also suffers bad performance. I believe that conceptual model is so important, it should not be broken by enforcing good performance patterns.
-Framework should remain loyal to the clear model and do its best for performance. In addition provide tools to optimize like optimization hints, refactoring patterns or more aggressive caching config.</p>
-<p>It seems to me <abbr title="React Server Components">RSC</abbr> and NextJS just <mark>broking some fundamental properties of this conceptual model</mark> because of its performance-first design.
-And I believe it is not necessary to achieve their goals.
-But lets stop here and keep this to the next article.</p>
+<p>Why does all of this matter? Because the conceptual model needs to be solid. All the time. If we develop some complex logic with those principles in mind, it can't happen due to broken principles that we need to refactor. I want to trust it will support me during heavy loads.</p>
+<p>I can handle some configuration and syntax overhead like useEffect, CSS integration, or Webpack. I'm fine to write a few extra chars if the conceptual model stays clear.</p>
+<p>Client <abbr title="Single Page Application">SPA</abbr>s also suffer from bad performance. I believe that the conceptual model is so important; it should not be broken by enforcing good performance patterns. The framework should remain loyal to the clear model and do its best for performance. In addition, provide tools to optimize like optimization hints, refactoring patterns, or more aggressive caching config.</p>
+<p>It seems to me <abbr title="React Server Components">RSC</abbr> and NextJS just <mark>break some fundamental properties of this conceptual model</mark> because of their performance-first design. And I believe it is not necessary to achieve their goals. But let's stop here and keep this for the next article.</p>
 <p>Thanks for reading.</p>]]></content:encoded>
         </item>
         <item>
