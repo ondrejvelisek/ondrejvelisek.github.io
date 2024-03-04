@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://www.googletagmanager.com">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-BZWT5GPVTE"></script>
 <script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","G-BZWT5GPVTE",{anonymize_ip:!0})</script><link rel="stylesheet" href="/assets/css/styles.e873652a.css">
-<script src="/assets/js/runtime~main.56169cf6.js" defer="defer"></script>
+<script src="/assets/js/runtime~main.b8a92b80.js" defer="defer"></script>
 <script src="/assets/js/main.27b61ea9.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -33,11 +33,11 @@ I&#x27;m not alone (
 <a href="https://x.com/kentcdodds/status/1349173470567964673" target="_blank" rel="noopener noreferrer">Kent C. Dodds</a>,
 <a href="https://daverupert.com/2024/02/ui-states/" target="_blank" rel="noopener noreferrer">Dave Rupert</a>,
 <a href="https://overreacted.io/the-two-reacts/" target="_blank" rel="noopener noreferrer">Dan Abramov</a>
-). Many developers agree that at least the URL and server data constitute some kind of state too. But I believe it is much more.</p>
+). Many developers agree that at least the URL and server data constitute some kind of state too. But I believe it has a much wider scope.</p>
 <p>Let&#x27;s consider some <code>UI</code> examples:</p>
 <ul>
 <li>Blog post UI depends on the slug present in the <strong>URL</strong> address.</li>
-<li>Server files UI explorer depends on <strong>server</strong> files.</li>
+<li>Server files explorer UI depends on <strong>server</strong> files.</li>
 <li>The newest movies list UI relies on the <strong>third-party</strong> resource of OMDB.</li>
 <li>Ticking clock UI depends on <strong>time</strong>.</li>
 <li>Drawing canvas UI relies on the mouse position of the user&#x27;s <strong>input device</strong>.</li>
@@ -61,7 +61,7 @@ I&#x27;m not alone (
 <p>The boundary between <strong>source</strong> and <em>derived</em> states is blurry. For example, the server database, local storage, OS settings, all of those depend on file system data.
 But let&#x27;s mark state as &quot;source&quot; when it depends solely on states inaccessible by available technologies. For example, I can&#x27;t access some private browser file with local storage data from the browser window environment.</p>
 <p>I would like to be explicit and distinguish between in-memory state and all those kinds of states.
-For myself, I name it a holistic state philosophy and <strong>Holistic state</strong>.</p>
+For myself, I name it a <strong>Holistic state</strong>.</p>
 <h2 class="anchor anchorWithStickyNavbar_fF9Z" id="what-is-ui">What is <code>UI</code>?<a href="#what-is-ui" class="hash-link" aria-label="Direct link to what-is-ui" title="Direct link to what-is-ui">​</a></h2>
 <p>It is what users perceive with their senses, usually with their eyes on the screen. On the web, it is represented with the <strong>DOM</strong>.</p>
 <p>The wilderness out there is more diverse.
