@@ -134,7 +134,7 @@ Same for derivation hooks. It destroys their purpose otherwise.</p>
 </ol>
 <p>Why does all of this matter? Because the conceptual model needs to be solid. All the time. If we develop some complex logic with those principles in mind, it can't happen due to broken principles that we need to refactor. I want to trust it will support me during heavy loads.</p>
 <p>I can handle some configuration and syntax overhead like useEffect, CSS integration, or Webpack. I'm fine to write a few extra chars if the conceptual model stays clear.</p>
-<p>Client <abbr title="Single Page Application">SPA</abbr>s also suffer from bad performance. I believe that the conceptual model is so important; it should not be broken by enforcing good performance patterns. The framework should remain loyal to the clear model and do its best for performance. In addition, provide tools to optimize like optimization hints, refactoring patterns, or more aggressive caching config.</p>
+<p>I know React client <abbr title="Single Page Application">SPA</abbr>s suffer from bad performance. I believe that the conceptual model is so important; it should not be broken by enforcing good performance patterns. The framework should remain loyal to the clear model and do its best for performance. In addition, provide tools to optimize like optimization hints, refactoring patterns, or more aggressive caching config.</p>
 <p>It seems to me <abbr title="React Server Components">RSC</abbr> and NextJS just <mark>break some fundamental properties of this conceptual model</mark> because of their performance-first design. And I believe it is not necessary to achieve their goals. But let's stop here and keep this for the next article.</p>
 <p>Thanks for reading.</p>]]></content>
     </entry>
