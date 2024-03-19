@@ -1,0 +1,183 @@
+---
+slug: practical-limits-of-react-hooks-recursion
+draft: false
+---
+
+# Practical limits of React hooks - Recursion
+
+While ago, I started using React hooks. The simplicity, homogenity and composability sounded great.
+Both components and hooks are simple functions. I can easily react on state changes from memory, 
+local storage, location URL and server the same way - with hooks. Mental model stays simple.
+My app is just a big function which consumes state and produces DOM. This big function is composed 
+of a smaller functions which are composed of smaller functions and so on. But there were obstacles 
+I've started to encounter and in the end I hit the hard limit of React hooks.
+
+<!-- truncate -->
+
+> UPDATE 2024: new React [`use`](https://react.dev/reference/react/use) hook may finally solve following limitation 
+> (if you accept `<Suspense/>` as a good pattern)
+
+## Model app
+
+Each app has some data model defined with entities and relations between them. Lets say we have company 
+Department and Employee where department consists of other departments and/or direct employees. 
+One employee can directly work for exactly one department. Cycles in department hierarchy are prohibited.
+
+Our Backend implements REST endpoints.
+
+```code title="/departments"
+returns list of all department ids
+```
+
+```code title="/departments/:departmentId"
+returns list of sub-department ids
+and list of direct employee ids
+```
+
+There are three product requirements.
+
+## Pleasant walk with basic hooks
+
+First product requirement is simple. User selects a department and wants to see number of direct employees.
+Pfff, its simple. Just implement this custom hook which uses department REST endpoint and use it in a component.
+
+```tsx
+const useDirectEmployeeCount(
+    departmentId: string
+): number =>
+    useDirectEmployeeIds(departmentId).length
+```
+
+```tsx
+const useDirectEmployeeIds(
+    departmentId: string
+): Array<string> =>
+    useDepartment(departmentId).directEmployeeIds
+```
+
+```tsx
+const useDepartment(
+    departmentId: string
+): Department =>
+    useQuery(
+        ['departments', departmentId],
+        () => fetch(`/departments/${departmentId}`)
+    ).data
+```
+
+Our backend implements exactly this endpoints so we use `react-query` and we are done.
+There are some loading and error states which I omitted, we can use fancy Suspend and ErrorBoundary,
+but we understand the code.
+
+
+## Obstacles with looping
+
+Second product requirement is simple. User needs to select multiple departments and see sum of direct employees.
+Ok, simple. I already have code for one. So simply loop it over multiple selected departments and sum the result.
+
+```tsx
+const totalCount = sum(
+    departmentIds.map(
+        departmentId => useDirectEmployeeCount(departmentId)
+    )
+)
+```
+
+Wait! It is a hook and there are rule of hooks. Anoying but still doable.
+Lets reimplement `useDirectEmployeeCount` to support multiple department ids. 
+Then I can sum them like this.
+
+```tsx
+const departmentCounts = useDirectEmployeeCount(departmentIds)
+const totalCount = sum(departmentCounts)
+```
+```tsx
+const useDirectEmployeeCount(
+    departmentIds: Array<string>
+): Array<number> =>
+    useDirectEmployeeIds(departmentIds)
+        .map(employeeIds => employeeIds.length)
+```
+
+But wait! I need to reimplement `useDirectEmployeeIds` too. Very anoying.
+
+```tsx
+const useDirectEmployeeIds(
+    departmentIds: Array<string>
+): Array<Array<string>> =>
+    useDepartment(departmentIds)
+        .map(department => department.directEmployeeIds)
+```
+
+But wait! Grrr...
+
+```tsx
+const useDepartment(
+    departmentIds: Array<string>
+): Array<Department> =>
+    useQueries(departmentIds.map(departmentId => ({
+        queryKey: ['departments', departmentId],
+        queryFn: () => fetch(`/departments/${departmentId}`)
+    })))
+        .map(result => result.data)
+```
+
+Uf. Done. I'm glad it is a small project with just three hooks. Tell me the last requirement.
+
+## Limits with recursion
+
+Third and last product requirement is simple. User needs to select department and see sum of direct and
+indirect employees (including employees from all sub-departments and their sub-departments and so on).
+Ok, simple. I already have code for multiple departments. So simply recursively call it and sum the result.
+
+```tsx
+const useIndirectEmployeeCount(
+    departmentIds: Array<string>
+): Array<number> => {
+    const directCount = useDirectEmployeeCount(departmentIds);
+    const departments = useDepartment(departmentIds);
+    const subDepartmentIds = departments.flatMap(department => department.subDepartmentIds);
+    const indirectCount = useIndirectEmployeeCount(subDepartmentIds);
+    return directCount + indirectCount
+}
+```
+
+Wait.
+
+> Error: Maximum Call Stack Size Exceeded
+
+Oh. You almost got me. I just forgot a recursive break, right?
+
+```tsx
+const useIndirectEmployeeCount(
+    departmentIds: Array<string>
+): Array<number> => {
+    const directCount = useDirectEmployeeCount(departmentIds);
+    const departments = useDepartment(departmentIds);
+    const subDepartmentIds = departments.flatMap(department => department.subDepartmentIds);
+    if (subDepartmentIds.length === 0) {
+        return directCount;
+    }
+    const indirectCount = useIndirectEmployeeCount(subDepartmentIds);
+    return directCount + indirectCount
+}
+```
+
+Wait.
+
+> Error: React Hook "useIndirectEmployeeCount" is called conditionally.
+
+...
+
+## Last words
+
+Mental model stays simple. Everything is a simple function. My app is one big function composed of smaller and
+smaller ones. It trully sounds great! But in a real world, hooks are not so simple, homogen and composable.
+There are obstacles and limits mainly because of rule of hooks.
+
+This post is not about saying React hooks are bad. I wrote it because I did not find any resources
+on such obstacles and limits. The React world looks like hooks are always pleasant walk trought the rosy garden.
+But they are not.
+
+For now I don't know how to elegantly solve the recusrion example. Are there some resources on this?
+Do you have following thougts? Maybe I'm not the only one struggling. Thanks for reading.

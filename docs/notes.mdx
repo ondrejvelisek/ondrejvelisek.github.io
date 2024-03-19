@@ -1,0 +1,294 @@
+---
+sidebar_position: 1
+---
+
+# Notes
+
+
+Environments/Runtime - build,edge,server,client 
+
+Kinf of satisfied when single environment is used. Basically we had client. But now it is horrible. We need framework/standard how to work on multiple environments.
+
+The problem is performance. But we loosing DX. A lot. I want to change it.
+
+I have a lot of opinions. Im confident with some and Im not with others. But I know I can be missing some points. Please let me know so I can learn and inject edits to my posts for future readers.
+
+I realize some of them are controversial. You will most likely disagree with some. But also agree with some. Tell me both. And also why. Twitter.
+
+When to trigger - 
+
+Server and Edge is alive. Like client. Can be rerendered. But asynchronously.
+
+prerendering - Shell
+
+Suspence/ErrorBoundaries vs. returning loading/error/success state
+
+Environment boundaries. They can overlap. How? 
+
+Mutations - Actions
+
+Functional without javascript - Actions - form
+
+Wait for Suspense vs. Stream right away - Streaming - on which environment?
+
+Bundle splitting - NO
+
+Minimize Client javascript - Also security. Also something (node APIs, file system, ...) cant be accessed form client side.
+
+Resumability - 
+
+Security - Ability to disallow exposing build/edge/server data/API to client, use server secrets, 
+
+By default it tries to push anything to the first possible environment/runtime (performance + security)
+
+Prefetching - Perfromance, load with parameters inside component render function. Or without paramaters outside component at init (request). Prefetch just by passing initial value to next environment.
+
+Where (on which enviro/runtime) component runs the render function (or signal tree) is defined by 
+
+Environments could be guarded. eg. @GuardEnvironment('build')
+
+Waterfalls - Performance - Hoisting up
+
+DX - async Load triggered nearby components
+
+Prototyping is a huge part of coding. Single file.
+
+Dont force me to split component. I am in charge.
+
+Single API for fetching
+
+Serializing parameters
+
+Rerender on cache key/request id/tag/deps change
+
+caching - NO
+
+routing - NO
+
+Everything is state/resource = Component uses it and modifies it, async state is a problem
+
+State defines from which environmetns it can be accessed.
+
+Compilation. How much it needs to understand our code beforhand. / Compilation magic. = Bad DX
+
+Blog, API, Discussion/Twitter?
+
+Basically limit role of page and layout. Just use regular components instead.
+
+Websockets are ideal UX+DX. But performance...
+
+Component needs environment if it uses some environment resource. accepts some props from parent component which needs the environament.
+Or if it passes callbacks to child component which need the envorionment.
+Or if it uses needs function
+Or it uses some hook which needs the environemnt. 
+
+Dont want to export mutation from file by name (export loader; export GET) 
+because I want to be able to have more in one file.
+
+Start with examples
+SSG, SSR, CSR, single file prototype, real world file structure, 
+ppr, streaming
+prefetching buld => ppr, build => server, build => ssr, build => client   
+
+
+
+```jsx title="API"
+
+/**
+ * Its like two arrays of environemnts:
+ * needToRun = [] // is empty by default
+ * ableToRun = [build, edge, server, client]
+ * 
+ * component is run on most left environment from ableToRun and all of envs in needToRun
+ * if 
+ */
+
+/**
+ * Marks component or hook that it needs to run on (e.g. localstorage needs client or cookies needs client or server or filestorage needss server or like useEffect needs client)
+ * It also means javascript will be bundled and shipped to that environment.
+ * OR is used between multiple environments.
+ * It makes to rerender the component when it first enter on environamnet where it is used. e.g. if it was prerendered on previous environemnt.
+ * It does not to avoid rendering on different environemnts.
+ * It is used for reducing shipped bundle size and reducing rerenders.
+ * It effectivly replaces 'use client directive'
+ * Not it will be mostly not used by app developers. But just library developers.
+ * 
+ * Its effective scope spreads to other components.
+ *
+ * Component needs environment if it uses some environment resource. accepts some props from parent component which needs the environament.
+ * Or if it passes callbacks to child component which need the envorionment.
+ * Or if it uses needs function
+ * Or it uses some hook which needs the environemnt. 
+ */
+function needs(...environments);
+
+/**
+ * It is used mostly to guard component that it needs to run on some environemnt. So some deep nested 'needs' function is not called.
+ * It yells error ideally at build time when it founds same needed enviornemnt. 
+ * Note it is not required to use. But helps to keep performance good.
+ * Because it stops you accidentaly use some expensive resource.
+ */
+function guradOnly(...environments);
+
+/**
+ * Triggers when asyncCallback changes or inside hooks rerenders.
+ */
+const useHook = registerResource(asyncCallback, {
+
+})
+```
+
+
+
+```jsx
+import { usePathParam, useSearchParam, useCookie, useLocalStorage, useEnvVar } from '@torrta'
+
+const usePosts = registerResource(() => {
+  guradOnly('server')
+  return fetch('/api/posts')
+}, {
+
+})
+
+const usePosts = createResource(() => {
+  needs('client')
+  avoid('client')
+  return fetch('/api/posts')
+}, {
+
+})
+
+const usePost = createUseAsync({
+  fn: (id) => fetch(`/api/posts/${id}`),
+  trigger: 'init' | 'render',
+})
+
+const usePost2 = createUseAsync({
+  fn: () => {
+    const id = usePathParam('postId')
+    return fetch(`/api/posts/${id}`)
+  },
+  trigger: [''],
+  suspense: false,
+})
+
+export const MyComponent = ({ id }) => {
+
+  const posts = usePosts()
+
+  const post = usePost(id)
+
+  return (<>
+    <div>{posts.length}</div>
+    <div>{post}</div>
+  </>)
+}
+```
+
+
+
+
+This component can be run on all environments
+But is rerendered only during build
+Its JS is stripped from all other environments
+```jsx
+export const HelloWorld = () => {
+  return (
+    <div>Hello world</div> 
+  )
+}
+```
+
+
+Component can refuse to run on some environments => resulting in error
+Component can force environment to wait for async operation => resulting in pause on Streaming
+Component can suspend environment rendering => resulting in triggering suspense
+
+
+This component can run on all environments
+
+```jsx title="/app/Page.jsx"
+import { useBuildEnvVar, useBuildUrl } from '@torrta'
+
+export const Page = () => {
+  const isDev = useBuildEnvVar('build', 'PROD')
+  const isDev = usePassValueToServer(isDev)
+  const url = useBuildUrl()
+  return (
+    <MyComponent/> 
+  )
+}
+```
+```jsx title="/app/MyComponent.jsx"
+export const MyComponent = () => {
+  const [tabId] = useState()
+  const tabContent = useTab(tabId, { suspense: false })
+  const posts = usePosts({ waitFor: ['build', 'server', 'edge', 'client'] }) // UI, loading, ...
+  return (
+    <div>{tabContent}</div> 
+  )
+}
+```
+```jsx title="/app/backendClient.jsx"
+export const useTab = registerResource((tabId) => {
+  guradOnly('server')
+  return fs.readFile(`/tabs/${tabId}.txt`)
+})
+
+
+export const usePosts = registerResource(() => {
+  guardOnly('build', 'server', 'edge') // bundling, javascript compilation, buindle size, features runtime available
+  return fetch(`/api/rests`)
+}, {
+  triggerRefetch: ['build-start', 'build-render', 'server-start', 'server-request', 'server-render', 'client-start', 'client-render', 'time', 'tag-revalidation'], // default by number of params, must use *-render if params are present, TS check
+  caching, refetching, freshness, staleTime, stalePeriod,
+  allowCreateEndpoint: true
+})
+```
+
+
+
+
+```jsx title="/app/MyComponent.jsx"
+export const MyComponent = () => {
+  const { Form, mutate } = usePostMutation()
+  return (
+    <Form><input name="here"/></Form> 
+  )
+}
+```
+```jsx title="/app/mutations.jsx"
+export const usePostMutation = registerMutation((tabId, tabContent) => {
+  guradOnly('server')
+  return fs.writeFile(`/tabs/${tabId}.txt`, { tabContent })
+})
+
+export const usePostMutation = registerMutation((tabId, tabContent) => {
+  guradOnly('server')
+  return fetch(`/tabs/${tabId}.txt`, { tabContent })
+})
+```
+
+
+
+
+```jsx title="/app/initialValue.jsx"
+export const MyComponent = () => {
+  const [tabId] = useState()
+  const postsBuild = usePostsBuild({ waitFor: ['build', 'server', 'edge', 'client'] }) // 
+  const postsRequest = usePosts({ suspense: false }) // 
+  const posts = postsRequest ?? postsBuild;
+  return (
+    <div>{tabContent}</div> 
+  )
+}
+```
+```jsx title="/app/backendClient.jsx"
+export const usePosts = registerResource(() => {
+  guardOnly('build', 'server', 'edge') // bundling, javascript compilation, buindle size, features runtime available
+  return fetch(`/api/rests`)
+}, {
+  triggerRefetch: ['build-start', 'build-render', 'server-start', 'server-request', 'server-render', 'client-start', 'client-render', 'time', 'tag-revalidation'], // default by number of params, must use *-render if params are present, TS check
+  caching, refetching, freshness, staleTime, stalePeriod
+})
+```
