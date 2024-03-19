@@ -30,7 +30,7 @@ type DiscussProps = {
 
 export default function Discuss({ twitter, reddit, github, medium, dev }: DiscussProps) {
   return (
-    <div className="flex gap-2 w-full flex-wrap">
+    <div className="flex gap-2 w-full flex-wrap my-8">
       <DiscussLink href={twitter} icon={faXTwitter}/>
       <DiscussLink href={reddit} icon={faRedditAlien}/>
       <DiscussLink href={github} icon={faGithub}/>
