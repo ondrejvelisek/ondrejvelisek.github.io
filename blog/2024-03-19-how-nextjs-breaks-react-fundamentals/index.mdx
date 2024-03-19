@@ -1,19 +1,19 @@
 ---
-slug: nextjs-breaks-react-fundamentals
+slug: how-nextjs-breaks-react-fundamentals
 draft: true
 ---
 
-# NextJS breaks React Fundamentals (Examples)
+# How Next.js breaks React Fundamentals (Examples)
 
 In the front-end world, there's an ongoing war over performance.
-RSC (React Server Components), currently implemented in the NextJS App router, serve as the official weapon aimed at improving startup performance.
+RSC (React Server Components), currently implemented in the Next.js App router, serve as the official weapon aimed at improving startup performance.
 However, it seems that in the midst of this battle, we've forgotten about some fundamentals, resulting in a degraded Developer Experience (DX).
-This article aims to provide examples of such DX issues in the current NextJS API.
+This article aims to provide examples of such DX issues in the current Next.js API.
 Towards the end, I outline a better proposal.
 
 {/* truncate */}
 
-I want to make it explicitly clear that it's not my intention to blame, dishonor, or offend React and NextJS maintainers.
+I want to make it explicitly clear that it's not my intention to blame, dishonor, or offend React and Next.js maintainers.
 I have respect for each one of them and appreciate their work. Thank you for your contributions.
 However, at the same time, I want to present what I believe is wrong about the current API design in a clear and constructive manner.
 This way, we can foster a discussion based on specific examples.
@@ -73,7 +73,7 @@ In the [previous article](/conceptual-model-of-react-and-rsc/), I described a se
 
 6. **Arbitrary** - The component's boundaries must obey the developer's needs. Nothing must force a component to split or not to split, as it would destroy its purpose.
 
-It seems to me that NextJS's implementation of <abbr title="React Server Components">RSC</abbr> breaks some of these fundamental properties due to their performance-first design. Examples follow now.
+It seems to me that Next's implementation of <abbr title="React Server Components">RSC</abbr> breaks some of these fundamental properties due to their performance-first design. Examples follow now.
 
 
 
@@ -82,9 +82,9 @@ It seems to me that NextJS's implementation of <abbr title="React Server Compone
 ## Sample Component
 
 Imagine a requirement to create a page with a random quote about programming on each page refresh. Quotes are saved in a remote database.
-How would you implement it in the NextJS App router?
+How would you implement it in the Next.js App router?
 
-NextJS [data fetching docs](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating)
+Next.js [data fetching docs](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating)
 suggest a simple async-await function within the component render function.
 Let's assume we have the `random(from, to)` lodash-like function for brevity.
 
@@ -129,7 +129,7 @@ async function FeedModal() {
 
 ...Oops. <mark class="error">"Error: Client component can't be async"</mark>. What happened? `'use client'` makes all of its descendants client components.
 But our `ProgrammingQuotes` assumes it is a server component.
-I see three options for how to solve it with current NextJS abilities.
+I see three options for how to solve it with current Next.js abilities.
 
 a. **Use client-side** data fetching solutions like `tanstack-query`, `useSWC`, or the new `use` React API. This means giving up on RSC and its performance benefits. 
 
@@ -216,7 +216,7 @@ async function ProgrammingQuotesClient({ quotes }) {
 }
 ```
 
-[NextJS docs](https://nextjs.org/docs/app/api-reference/functions/use-search-params#server-components)
+[Next.js docs](https://nextjs.org/docs/app/api-reference/functions/use-search-params#server-components)
 suggest `useSearchParam` hook or `searchParams` props.
 
 So let's try `useSearchParam` first.
@@ -241,7 +241,7 @@ c. **Create context** for URL params and then access it with `useContext` from t
 Imagine a last change requirement. This little component should be moved to a footer component. The footer is in a page layout component tree.
 ...Oops. `searchParams` prop is inaccessible in layouts. What do I do? It's very frustrating, but it seems I need to refactor and convert it to a client component to be able to use `useSearchParam`.
 ...Oops. <mark class="error">"Error: Client component can't be async"</mark>.
-Am I just being forced to choose between server-side fetching or NextJS layouts feature?
+Am I just being forced to choose between server-side fetching or Next.js layouts feature?
 
 
 
@@ -257,7 +257,7 @@ I'm forced to expose children as a component prop
 and create artificial Client and Server components.
 
 I want to emphasize that these examples are not some edge-case nonsense. Similar requirements come up every day.
-I'm 100% sure that at least one example has happened to every developer who creates some non-trivial app in the NextJS App router.
+I'm 100% sure that at least one example has happened to every developer who creates some non-trivial app in the Next.js App router.
 I truly believe Colocation, Encapsulation, and Arbitrary composition are crucial properties for efficient development.
 They are necessary for team cooperation and maintaining mid-large codebases.
 Especially for long-term projects with many change requirements over the years where many developers read and manipulate the code and need to quickly understand what is happening.
@@ -266,11 +266,11 @@ That's the reason I'm writing this. So we can design better framework APIs.
 Many of you argue that I can use the old client-side approach and then gradually move to the server.
 Start with a full client-side app and if performance is needed, push the client boundary down through a component tree.
 You are smart.
-I see three catches. 1. this is not recommended nor mentioned by the NextJS team. 2. <abbr title="In My Opinion">IMO</abbr> is too much work.
+I see three catches. 1. this is not recommended nor mentioned by the Next.js team. 2. <abbr title="In My Opinion">IMO</abbr> is too much work.
 Both, writing but more importantly mental.
 It is not just putting `'use client'` at the top of the module, but also modifying async code, using different methods to access URLs, refactor component boundaries and more.
 3. I believe there is a way to provide better out-of-the-box performance without compromising on DX.
-And still keep the ability to achieve the same performance as current NextJS with an easier optimization path.
+And still keep the ability to achieve the same performance as current Next.js with an easier optimization path.
 
 
 
@@ -279,7 +279,7 @@ And still keep the ability to achieve the same performance as current NextJS wit
 
 ## A Better Approach
 
-In NextJS implementation of RSC, we define if a component is server or client at the module level.
+In Next.js implementation of RSC, we define if a component is server or client at the module level.
 If the compiler sees `'use client'`, the code is bundled and shipped to the client. It stays server-only otherwise.
 In other words, we are choosing where a component is rendered, respectively its runtime environment.
 This component runtime then limits its capabilities, e.g., using async fetching or client state.
@@ -298,14 +298,14 @@ The best-performing strategy should be chosen by the framework automatically.
 It is the same as how re-rendering works on the client nowadays. Developers use some state within a component, and it re-renders when the state changes.
 No manual tweaking of shouldComponentUpdate. The same applies to signals.
 
-Paradoxically, NextJS inspired me with this idea.
+Paradoxically, Next.js inspired me with this idea.
 It chooses between build and request-time rendering based on [Dynamic functions](https://nextjs.org/docs/app/building-your-application/rendering/server-components#dynamic-functions)
 used within the component.
 For [some reason](https://nextjs.org/docs/app/api-reference/file-conventions/layout#layouts-do-not-receive-searchparams), they limit this deduction in layouts.
 I believe this automatic deduction concept should be used more broadly.
 
 ![Components runtime environment rendering diagram](./rendering-runtime.png)
-<p style={{ textAlign: `center` }}>*Components go through runtimes and if some state is needed, they re-render. Pass environment otherwise.*</p>
+<p style={{ textAlign: `center` }}>*Components go through runtimes and if some state is needed, they re-render. Pass the runtime otherwise.*</p>
 
 In the end, let's think together about this algorithm of automatic runtime environment deduction.
 First of all, what environments do we have available, respectively where could the component be rendered?
@@ -316,7 +316,7 @@ I want to choose the most performant automatically if nothing forces me otherwis
 
 What forces a component to use a less performant runtime? It is when a component needs some more dynamic or interactive features, respectively connects to some kind of dynamic or interactive state.
 When a component connects to `searchParam`, `cookie`, or `headers`, those states are not known during build-time and it must be rendered during server request.
-This is what NextJS does with dynamic functions I mentioned above.
+This is what Next.js does with dynamic functions I mentioned above.
 Similarly, when a component connects to `useState`, `setInterval`, or `onMouseEnter`, it must be rendered on the client because those states are not accessible on the server.
 
 I hope your head is screaming now "But Ondrej, it would not work! Bundling is a compile-time feature!".
