@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk_torrta_docs=self.webpackChunk_torrta_docs||[]).push([[903],{1912:s=>{s.exports=JSON.parse('{"blogBasePath":"/","blogTitle":"Blog","authorsListPath":"/authors"}')}}]);
