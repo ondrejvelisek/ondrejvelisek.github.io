@@ -1,6 +1,7 @@
 ---
 slug: avoid-the-state-synchronization-trap
-draft: true
+draft: false
+unlisted: true
 ---
 
 import { Pro, Con } from '@site/components/ProsCons'
@@ -38,7 +39,7 @@ Let’s illustrate state synchronization through an evolving example, starting s
 
 &nbsp;
 
-### 2025: List of orders
+### 2025: List of Orders
 
 import ExampleOrdersList from './Example/Example1OrdersList'
 
@@ -60,7 +61,7 @@ With the given orders data, you use a UI component `Table`, which renders it. Ea
 
 &nbsp;
 
-### 2026: Custom columns
+### 2026: Custom Columns
 
 import Example2Columns from './Example/Example2Columns'
 
@@ -157,7 +158,7 @@ Seems nice. You try to run this, and… it does not show any filters. Can you gu
 
 &nbsp;
 
-## State initialization
+## State Initialization
 
 It is because the filters context is empty. We need to initialize the filter state.
 `useState` has an initialization property. We can use it.
@@ -198,7 +199,7 @@ We need to update the filters state somehow.
 
 &nbsp;
 
-## State synchronization
+## State Synchronization
 
 ### 1. Direct Setters Approach
 
@@ -232,7 +233,7 @@ This is unmaintainable and error-prone.
 
 &nbsp;
 
-### 2. Centralized Gate Setter Approach
+### 2. Gate Setter Approach
 
 ```tsx
 function ColumnsProvider() {
