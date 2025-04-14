@@ -1,5 +1,6 @@
 ---
 slug: avoid-the-state-synchronization-trap
+image: ./avoid-sync-state-trap.png
 draft: false
 unlisted: true
 ---
@@ -382,6 +383,8 @@ The `useFilters` hook will merge two states: visible attributes and modified fil
 The benefit is that we do not have to initialize the state at all.
 Since columns don’t contain any additional state beyond attributes, we can use attributes directly in the same manner as columns before (this is not always the case, but let’s keep this example simple).
 
+![State Synchronization Selector Approach Diagram](./avoid-sync-state-trap.png)
+
 This way, filters will always be the same as columns.
 Even if the filters state is empty, there is no need for initialization.
 The change is synchronous. No glitches. No useless refetches.
@@ -448,12 +451,5 @@ Thanks for reading.
 
 
  
-import Discuss from '@site/components/Discuss'
-
-<Discuss
-    twitter="https://x.com/search?q=https%3A%2F%2Fondrejvelisek.github.io%2Favoid-the-state-synchronization-trap%2F"
-    li="https://dev.to/ondrejvelisek/avoid-the-state-synchronization-trap"
-    bsky="https://dev.to/ondrejvelisek/avoid-the-state-synchronization-trap"
-  />
 
 &nbsp;
