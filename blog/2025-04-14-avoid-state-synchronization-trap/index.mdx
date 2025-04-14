@@ -1,8 +1,8 @@
 ---
-slug: avoid-the-state-synchronization-trap
-image: ./avoid-sync-state-trap.png
+slug: avoid-state-synchronization-trap
+image: ./avoid-state-sync-trap-diagram.png
 draft: false
-unlisted: true
+unlisted: false
 ---
 
 import { Pro, Con } from '@site/components/ProsCons'
@@ -152,8 +152,8 @@ You add a new `Filters` component.
 Similarly to columns, the visible filters might change. They can’t be a constant and you need to store them in a state.
 They are required by multiple components. So to avoid prop drilling, you store them in a new Context `FiltersCtx`.
 
-Filtering works like this.
-The User selects some filter value e.g. Customer "Ondrej".
+Filtering works as follows:
+The user selects a filter value, e.g., Customer ‘Ondrej’.
 The state setter is called from `Filter` component.
 The `FiltersCtx` state value is updated.
 The reactivity system rerenders the `OrdersList` component.
@@ -167,7 +167,7 @@ You can try it by yourself with interactive working example above.
 ## State Initialization
 
 Seems nice. You try to run the code, and… it does not show any filters. Can you guess why?
-(Note I’ve already fixed the example above, to ilustrate what we are trying to build)
+(Note I’ve already fixed the example above, to illustrate what we are trying to build)
 
 It is because the filters context is empty. We need to initialize the filter state.
 `useState` has an initialization property. We can use it.
@@ -232,7 +232,7 @@ Fast forward. 2028. You are implementing reset columns to default. Oops. Forgot 
 Fast forward. 2029. Implementing column presets. Oops. Forgot to update filters as well.
 Fast forward. 2030. Oops…
 
-You got the idea. This way you need to keep in mind, every time some functionality which updates columns is added, you need to update filters as well.
+You got the idea. Every time new functionality updating columns is added, you must also remember to update the filters.
 This is unmaintainable and error-prone.
 
 <ul className="list-none pl-2">
@@ -279,11 +279,10 @@ const setColumns = (columns) => {
 It is definitely a better approach, but if you’re like me, you feel it is still fragile in the long run.
 After some years and several new colleagues, somebody will create code that calls `setColumnsInner` directly without your gate.
 
-I also find it unexpected and confusing that `ColumnsProvider` depends on `FiltersContext`, but I’ll let you decide if that’s your view too.
-I would expect it the other way around.
+I also find it unexpected and confusing that `ColumnsProvider` depends on `FiltersContext`. I would expect it the other way around. But you can decide whether you share this perspective.
 
 You might also end up with cyclic dependency because, if you remember the initialization logic above, you know `FiltersProvider` depends on `ColumnsContext`.
-So we need to use constant for initializing filters instead, which creates a needs to keep the initial value in sync too.
+So we need to use constant for initializing filters instead, which creates a need to keep the initial value in sync too.
 
 <ul className="list-none pl-2">
   <Pro>Better maintainability</Pro>
@@ -383,7 +382,7 @@ The `useFilters` hook will merge two states: visible attributes and modified fil
 The benefit is that we do not have to initialize the state at all.
 Since columns don’t contain any additional state beyond attributes, we can use attributes directly in the same manner as columns before (this is not always the case, but let’s keep this example simple).
 
-![State Synchronization Selector Approach Diagram](./avoid-sync-state-trap.png)
+![State Synchronization Selector Approach Diagram](./avoid-state-sync-trap-diagram.png)
 
 This way, filters will always be the same as columns.
 Even if the filters state is empty, there is no need for initialization.
@@ -394,7 +393,7 @@ The column state can be updated in any way, and the reactivity system will take 
 You might argue someone can forget to use this hook and access the filters state directly.
 You are right.
 So what’s the advantage compared to the `setColumns` wrapper function?
-But <abbr title="In My Opinion">IMO</abbr>, it is less likely to happen because one will experience an empty state at first sight.
+But <abbr title="In My Opinion">IMO</abbr>, it’s less likely to happen since forgetting the hook would immediately result in an empty state.
 
 Also, this derivation logic (selector) is easier to maintain than a setter (action) because it is reactive.
 We just focus on control logic, not when it should be called.
@@ -408,7 +407,7 @@ You can try it by yourself in the interactive example above.
 Sometimes this behavior is even desired, but in this situation it is unintuitive, and I see it as a disadvantage here.
 It is fixable by combining this selector approach with the previously mentioned gate setter approach.
 Simply clear the selected filter whenever a column is removed.
-But I will keep this article short and will not go into detail with this.
+However, I’ll keep this article short and won’t go into further detail here.
 I see this as an edge-case, and I believe mentioned benefits outweigh this disadvantage.
 But feel free to make your own opinion here.
 
