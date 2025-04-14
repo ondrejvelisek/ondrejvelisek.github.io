@@ -4,8 +4,6 @@ import {
   useContext,
   type Dispatch,
   type SetStateAction,
-  useCallback,
-  useMemo,
 } from "react";
 import { Multiselect, Table } from "./UiComponents";
 import {
@@ -13,6 +11,7 @@ import {
   useAttributeValues,
   useOrders,
   type Attribute,
+  type Filter,
 } from "./HooksData";
 
 const initColumns = [
@@ -22,63 +21,18 @@ const initColumns = [
   { name: "amount", title: "Amount" },
 ];
 
-type Filter = {
-  operator: "=";
-  values: Array<string | number>;
-};
-
 const ColumnsCtx =
   createContext<[Array<Attribute>, Dispatch<SetStateAction<Array<Attribute>>>]>(
     undefined
   );
 const FiltersCtx =
-  createContext<
-    [Record<string, Filter>, Dispatch<SetStateAction<Record<string, Filter>>>]
-  >(undefined);
-
-type Optional<T> = {
-  [K in keyof T]?: T[K];
-};
-
-function useFilters(): [
-  Array<Attribute & Optional<Filter>>,
-  (attribute: string, value: string | number) => void
-] {
-  const [columns] = useContext(ColumnsCtx);
-  const [filters, setFilters] = useContext(FiltersCtx);
-
-  const allFilters = useMemo(
-    () =>
-      columns.map((col) => ({
-        ...col,
-        ...filters[col.name],
-      })),
-    [columns, filters]
+  createContext<[Array<Filter>, Dispatch<SetStateAction<Array<Filter>>>]>(
+    undefined
   );
-
-  const toggleFilter = useCallback(
-    (attribute: string, value: string | number) =>
-      setFilters((prevFilters) => {
-        return {
-          ...prevFilters,
-          [attribute]: {
-            operator: "=",
-            values: prevFilters[attribute]?.values.includes(value)
-              ? prevFilters[attribute]?.values.filter((v) => v !== value)
-              : [...(prevFilters[attribute]?.values ?? []), value],
-          },
-        };
-      }),
-    []
-  );
-
-  return [allFilters, toggleFilter];
-}
 
 export default function ExampleOrdersList() {
   const [columns, setColumns] = useState<Array<Attribute>>(initColumns);
-  const [filters, setFilters] = useState<Record<string, Filter>>({});
-
+  const [filters, setFilters] = useState<Array<Filter>>(initColumns);
   return (
     <ColumnsCtx.Provider value={[columns, setColumns]}>
       <FiltersCtx.Provider value={[filters, setFilters]}>
@@ -90,11 +44,11 @@ export default function ExampleOrdersList() {
 
 function OrdersList() {
   const [columns] = useContext(ColumnsCtx);
-  const [filters] = useFilters();
+  const [filters] = useContext(FiltersCtx);
   const [orders] = useOrders(columns, filters);
   return (
     <>
-      <Filters className="mb-2 w-full flex-wrap" />
+      <Filters className="mb-2" />
       <div className="flex items-start">
         <Table data={orders} columns={columns} />
         <ColumnsSelector />
@@ -132,7 +86,7 @@ function ColumnsSelector() {
 }
 
 function Filters({ className }: { className?: string }) {
-  const [filters, toggleFilter] = useFilters();
+  const [filters, setFilters] = useContext(FiltersCtx);
   const attibuteValues = useAttributeValues();
 
   return (
@@ -149,7 +103,21 @@ function Filters({ className }: { className?: string }) {
                   selected: filter.values?.includes(value) ?? false,
                 }))
           }
-          onChange={(value) => toggleFilter(filter.name, value)}
+          onChange={(value) =>
+            setFilters((prevFilters) => {
+              return prevFilters.map((f) => {
+                if (f.name === filter.name) {
+                  return {
+                    ...f,
+                    values: f.values?.includes(value)
+                      ? f.values?.filter((v) => v !== value)
+                      : [...(f.values ?? []), value],
+                  };
+                }
+                return f;
+              });
+            })
+          }
         >
           {filter.title}
         </Multiselect>

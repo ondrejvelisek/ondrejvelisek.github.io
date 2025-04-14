@@ -58,7 +58,7 @@ export function useOrders(
             )
           )
       );
-    }, 1000);
+    }, 500);
     return () => clearTimeout(timer);
   }, [columns, filters]);
 

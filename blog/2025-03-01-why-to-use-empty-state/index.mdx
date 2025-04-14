@@ -9,7 +9,7 @@ import { Pro, Con } from '@site/components/ProsCons'
 
 # Avoid the State Synchronization Trap
 
-Today I want to talk about a bad code pattern I see quite often.
+This post is about a bad code pattern I see quite often.
 It’s about state management, particularly state synchronization. Often it is a source of bugs, glitches, and performance problems.
 
 Usually it is solvable by adjusting the state shape.
@@ -20,12 +20,12 @@ An interesting fact is that one of those states is empty or undefined, but the U
 
 During the Redux era, we discussed state shape a lot. It was called state normalization.
 Nowadays, it is rarely touched, even though it is still important.
-To help you understand my thoughts, I sometimes use Redux terminology, like selectors and actions, throughout this article.
+To make my thoughts easier to understand, I sometimes use Redux terminology, like selectors and actions, throughout this article.
 
 I’ll present the problem using an example of an orders table. The example is quite long, but I believe it is useful.
 It is based on a real-world application. I simplify, but in principle, I saw it in a real codebase.
 
-One last note before we start: I talk about React, but the ideas are applicable to any modern FE framework (regardless if signal-based or not).
+One last note before we start: I talk about React but the ideas are applicable to any modern FE framework (regardless if signal-based or not).
 
 
 
@@ -94,11 +94,11 @@ They collect additional attributes about Opulus orders, like currency and countr
 They want to allow users to show more columns in the table. So you add a <code>⚙</code> button beside the table header.
 When the user clicks it, a dropdown with available columns appears. The user can select and deselect which columns are visible.
 
-Since columns might change during the user session, you need to store them in some kind of state.
+Since visible columns might change, they can’t be a constant and you need to store them in some kind of updatable state.
 They need to be accessed from multiple components (like `OrdersList` and the <code>⚙</code> button dropdown).
-So we store columns in some higher-level state.
-Here I use React Context, but feel free to imagine Zustand, Jotai, Redux, or URL. It does not matter for our purposes.
-You initialize the state with default columns constant.
+To avoid prop drilling, we store columns in some higher-level state.
+Here I use React Context `ColumnsCtx`, but feel free to imagine Zustand, Jotai, Redux, or URL. It does not matter for our purposes.
+You initialize the state with a constant containing the default columns.
 (If URL surprised you, you might want to read my previous article [Conceptual Model of React and RSC](/conceptual-model-of-react-and-rsc)).
 
 
@@ -142,26 +142,38 @@ function FiltersProvider() {
 }
 ```
 
-Fast forward. It’s the year 2027, and the customer’s business grows. There are many Opulus orders now.
+Fast forward to 2027. The customer’s business continues to grow. There are many Opulus orders now.
 Therefore, the customer wants you to implement filtering rows by values.
 The user should be able to filter only visible columns.
 Not a trivial feature request, but let’s do it.
 
 You add a new `Filters` component.
-Filters might change during the user session and need to be accessible in multiple components, so you store them in a new Context.
-When the user modifies the filter via UI, the `Filter` component calls some context state setter and adjusts the state value,
-and the reactivity system rerenders the `OrdersList` component and therefore refetches `useOrders` with a new `filters` value.
+Similarly to columns, the visible filters might change. They can’t be a constant and you need to store them in a state.
+They are required by multiple components. So to avoid prop drilling, you store them in a new Context `FiltersCtx`.
 
-Seems nice. You try to run this, and… it does not show any filters. Can you guess why?
+Filtering works like this.
+The User selects some filter value e.g. Customer "Ondrej".
+The state setter is called from `Filter` component.
+The `FiltersCtx` state value is updated.
+The reactivity system rerenders the `OrdersList` component.
+`useOrders` hook receives updated state and refetches data with new `filters`.
 
+You can try it by yourself with interactive working example above.
 
 
 &nbsp;
 
 ## State Initialization
 
+Seems nice. You try to run the code, and… it does not show any filters. Can you guess why?
+(Note I’ve already fixed the example above, to ilustrate what we are trying to build)
+
 It is because the filters context is empty. We need to initialize the filter state.
 `useState` has an initialization property. We can use it.
+
+import Example4Initialized from './Example/Example4Initialized'
+
+<Example4Initialized/>
 
 ```tsx
 const initColumns = [
@@ -313,7 +325,8 @@ There is a brief timeframe where your filters are not in sync with columns.
 It can be a source of bugs and glitches.
 The UI jumps back and forth. It is visually disturbing and can break animations.
 
-But probably most importantly, it causes double refetch, which can cause performance problems, stress the server with useless load, and increase our bill.
+But more importantly, it causes a double refetch, leading to performance issues, unnecessary server load, and increased costs.
+You can see it by yourself in the interactive example above. Try to change visible columns and watch fired requests counter.
 
 <ul className="list-none pl-2">
   <Pro>Good maintainability</Pro>
@@ -378,7 +391,7 @@ The column state can be updated in any way, and the reactivity system will take 
 You might argue someone can forget to use this hook and access the filters state directly.
 You are right.
 So what’s the advantage compared to the `setColumns` wrapper function?
-But IMHO, it is less likely to happen because one will experience an empty state at first sight.
+But <abbr title="In My Opinion">IMO</abbr>, it is less likely to happen because one will experience an empty state at first sight.
 
 Also, this derivation logic (selector) is easier to maintain than a setter (action) because it is reactive.
 We just focus on control logic, not when it should be called.
@@ -387,11 +400,14 @@ The reactive system takes care of it.
 It is fair to say that there is a hidden user experience difference.
 When the attribute is filtered, then removed and added again, it holds the previous filter values.
 Therefore, orders are filtered after the column is added back.
-Sometimes it is even desired, but in this stuation it is unintuitive, and I see it as a disadvantage here.
-It is fixable by some of the previously mentioned methods (setter, gate setter, or effect).
+You can try it by yourself in the interactive example above.
+
+Sometimes this behavior is even desired, but in this situation it is unintuitive, and I see it as a disadvantage here.
+It is fixable by combining this selector approach with the previously mentioned gate setter approach.
+Simply clear the selected filter whenever a column is removed.
 But I will keep this article short and will not go into detail with this.
-I see this as an edge-case, and IMHO mentioned benefits outweigh this disadvantage.
-But feel free to make your own opinion.
+I see this as an edge-case, and I believe mentioned benefits outweigh this disadvantage.
+But feel free to make your own opinion here.
 
 <ul className="list-none pl-2">
   <Pro>Good maintainability</Pro>
@@ -415,18 +431,18 @@ It is an invariant of your state shape, which TypeScript is not able to check. T
 This was just one example inspired by a real-world problem. But I frequently see developers using effects and setters to synchronize states.
 Selectors generally provide more maintainable solutions, are synchronous, and ensure immediate, predictable updates.
 
-IMHO, these state invariants represent a bad code smell.
+<abbr title="In My Opinion">IMO</abbr>, these state invariants represent a bad code smell.
 They frequently cause bugs, glitches, and performance issues.
 Try to develop a nose for these invariants and pay attention when someone introduces one into your app.
 
 I know the world out there is wild. Perhaps your junior colleague has already created a shape like this, 
-and it’s deeply baked into your app, leaving no time to refactor.
+and it’s deeply baked into your app, leaving no time to refactor the entire codebase.
 In such a case, I would recommend going with the gate setter solution.
 Definitely avoid `useEffect` if possible.
 Additionally, consider implementing a function that checks invariants that must always hold true for your state.
 You can run this function within your derivation logic (selectors) to alert you immediately if an invariant breaks.
 
-Hope I’ve given you some material to think about. As always, if you disagree with me, I encourage you to get in touch. In any case…
+I hope I’ve given you some material to think about. As always, if you disagree with me, I encourage you to get in touch. In any case…
 
 Thanks for reading.
 
@@ -434,12 +450,10 @@ Thanks for reading.
  
 import Discuss from '@site/components/Discuss'
 
-TBD Discuss links:
-
 <Discuss
     twitter="https://x.com/search?q=https%3A%2F%2Fondrejvelisek.github.io%2Favoid-the-state-synchronization-trap%2F"
-      li="https://dev.to/ondrejvelisek/avoid-the-state-synchronization-trap"
-      bsky="https://dev.to/ondrejvelisek/avoid-the-state-synchronization-trap"
-    />
+    li="https://dev.to/ondrejvelisek/avoid-the-state-synchronization-trap"
+    bsky="https://dev.to/ondrejvelisek/avoid-the-state-synchronization-trap"
+  />
 
 &nbsp;
