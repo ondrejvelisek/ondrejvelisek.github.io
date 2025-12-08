@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk_torrta_docs=self.webpackChunk_torrta_docs||[]).push([[434],{6119:t=>{t.exports=JSON.parse('{"metadata":{"permalink":"/","page":1,"postsPerPage":10,"totalPages":1,"totalCount":5,"blogDescription":"Blog","blogTitle":"Blog"}}')}}]);
