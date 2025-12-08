@@ -1,0 +1,676 @@
+---
+slug: tanstack-start-new-competitor-to-nextjs
+image: ./tanstack-start-new-competitor-to-nextjs.png
+draft: false
+unlisted: false
+---
+
+import { Pro, Con } from '@site/components/ProsCons'
+import NextLogo from './NextLogo.tsx';
+import StartLogo from './StartLogo.tsx';
+import { Timeline, Marks, Mark, Swimlane, Block } from './Timeline.tsx';
+import startLogoUrl from './start-logo.png';
+import nextLogoUrl from './next-logo.png';
+
+
+# TanStack Start: New competitor to Next.js
+
+I've been using TanStack Start for a mid-size hobby webapp since its early alpha stage—over a year now.
+I'm starting to feel I have enough experience, and since Start just entered a release candidate stage,
+it's time to share my insights with you.
+
+I will present Start by comparing it to Next.js.
+
+{/* truncate */}
+
+Both are great pieces of software. In some cases very similar. In other cases very different.
+
+Notes:
+- I assume you have basic knowledge of the Next.js App Router ([docs](https://nextjs.org/docs/app/getting-started)).
+- This article is heavily inspired by my talk at FrontKon 2025 in Prague
+([🎥 YouTube](https://www.youtube.com/watch?v=wwiIgIKL7JA) Czech only).
+- Actually, I compare TanStack Start ([docs](https://tanstack.com/start/)) + TanStack Router
+([docs](https://tanstack.com/router/)) and reference both as just "Start" for simplicity.
+It feels like a natural comparison since Next.js also includes a router.
+
+&nbsp;
+
+## What do I compare?
+
+I will compare Start to Next in the following areas.
+I chose these because, from my point of view, this is where the two frameworks differ the most.
+
+- Routing - Typesafety
+- Data fetching - SSR, Streaming
+- Performance - Bundle size, Caching
+
+On the other hand, I will *not* compare:
+
+- Non-technical differences
+  - Like production readiness, Vercel lock-in, community, ecosystem, ...
+  - Because I like to dig the technical differences.
+- Areas where they are very similar
+  - Server actions/functions, progressive enhancement, SEO, hosting, ...
+  - Because there are mostly syntactical differences, and I'm not interested in these.
+
+&nbsp;
+
+## Routing
+
+&nbsp;
+
+### Route definition
+
+Both frameworks support file-based routing. You define your pages based on your file/folder structure and naming conventions.
+There are some minor differences.
+Like Next using `page.tsx` and Start using `index.tsx` files for page definition.
+Or `[postId]` folder in Next and `$postId` in Start as a dynamic route segment.
+Just syntactic sugar. No big difference here.
+
+<NextLogo/>
+```
+📁 blog
+├─ 📁 [postId]
+│  └─ ⚛ page.tsx
+└─ ⚛ page.tsx
+```
+
+<StartLogo/>
+```
+📁 blog
+├─ 📁 $postId
+│  └─ ⚛ index.tsx
+└─ ⚛ index.tsx
+```
+
+
+Moving on. Start allows you to define so-called flat-route definitions. This means you can define your path in a file name instead of a folder.
+For example, a single file in the root folder `/blog.$postId.tsx` in Start will define the same route as `/blog/$postId/page.tsx` in Next.
+From my experience, it is often useful and readable,
+especially when you use it in combination with classic nested folders definitions.
+
+<StartLogo/>
+```markup title="Flat-route definition"
+⚛ blog.tsx
+⚛ blog.$postId.tsx
+```
+
+<StartLogo/>
+```markup title="Combined flat-route with nested folders"
+📁 blog
+├─ ⚛ $postId.tsx
+└─ ⚛ index.tsx
+```
+
+It's also worth mentioning that Start supports code-based routing, which is sometimes useful. E.g. in the case of localized route names.
+Next does not support any of those.
+
+&nbsp;
+
+### Page config
+
+Now let's look inside a page file. Next.js uses an extremely brief and readable syntax. Love it.
+
+<NextLogo/>
+```tsx title="/blog/page.tsx"
+export default function Blog() {
+  return <div/>;
+}
+```
+
+Start is a little more complicated. We need to use the `createFileRoute(...)` function.
+Worth pointing out its first argument `/blog`.
+It's the route identifier and is used internally to infer TypeScript types.
+What's convenient is that the first line is auto-generated
+and the route identifier is derived from the file name by Start dev server.
+This way it prevents typos and misalignments between the file name, route identifier and type inference.
+
+<StartLogo/>
+```tsx title="/blog/index.tsx"
+  // highlight-next-line
+export const Route = createFileRoute("/blog")({ // this is auto-generated
+  component: Blog,
+});
+
+function Blog() {
+  return <div/>;
+}
+```
+
+&nbsp;
+
+### Router typesafety
+
+Now let's look at how the dynamic route segment parameter `postId` is used. In Start, it's pretty simple—just use the `useParams` hook.
+It's worth mentioning that `useParams` is typesafe, and your IDE will suggest available param names and catch typos.
+
+<StartLogo/>
+```tsx title="/blog/$postId.tsx"
+export const Route = createFileRoute("/blog/$postId")({
+  component: BlogPost,
+});
+
+function BlogPost() {
+  // highlight-next-line
+  const { postId } = Route.useParams();
+  return <div>{postId}</div>;
+}
+```
+
+Let's look at how it is done in Next. See that it also needs a route identifier to infer types. This way, `params` are also typed.
+Note that this only works if you use the `typedRoutes` feature
+([docs](https://nextjs.org/docs/app/api-reference/config/typescript#statically-typed-links)).
+Without it, there's no type inference, your IDE won't offer suggestions, and AI agents won't benefit from it either.
+
+<NextLogo/>
+```tsx title="/blog/[postId]/page.tsx"
+export default async function BlogPost(
+  // highlight-next-line
+  { params }: PageProps<"/blog/[postId]">
+) {
+  const { postId } = await params;
+  return <div>{postId}</div>;
+}
+```
+
+I love how competition is driving change here. 
+When TanStack Router came out with its awesome and convenient end-to-end typesafe system, developers loved it.
+Quickly it forced Next.js and Remix to invest in it too. In version 15.5, Next.js introduced a new `typedRoutes` feature
+([blog post](https://nextjs.org/blog/next-15-5#typed-routes-stable)).
+It is not enabled by default, and I highly suggest enabling it.
+It's a great <abbr title="Developer Experience">DX</abbr> improvement; however, you might be surprised that it is not as reliable as you would expect.
+Let's see some examples.
+
+Firstly, a `<Link/>` component. As you can see, Next can't infer routes with dynamic segments, and therefore your IDE is not able to suggest all available routes.
+Inconvenient for devs and from my experience it confuses AI agents too.
+
+<NextLogo/>
+```tsx
+<Link href="">Blog Post</Link>
+//          ⬑ IDE suggests:
+//            ┏━━━━━━━━━┓
+//            ┃ /       ┃
+//            ┃ /blog   ┃
+//            ┗━━━━━━━━━┛
+```
+
+<StartLogo/>
+```tsx
+<Link to="">Blog Post</Link>
+//        ⬑ IDE suggests:
+//          ┏━━━━━━━━━━━━━━━┓
+//          ┃ /             ┃
+//          ┃ /blog/        ┃
+// highlight-next-line
+//          ┃ /blog/$postId ┃
+//          ┗━━━━━━━━━━━━━━━┛
+```
+
+Another example. Next does not URL-encode dynamic parameters. In this case, Next renders a `<a href="/blog/">` tag referencing the blog page.
+Allowing it, even if route `/blog/` is not defined anywhere in our app. Type checking passes, and users end up on a 404 page.
+
+<NextLogo/>
+```tsx
+<Link href="/blog/ ">
+  Blog Post
+</Link>
+```
+
+Start correctly encodes the space and renders a `<a href="/blog/%20">` tag
+pointing to the blog post page with `postId` being a space (encoded as `%20`).
+I know it's a rare case, but it does make me keep checking for correctness in Next.
+
+<StartLogo/>
+```tsx
+<Link to="/blog/$postId" params={{ postId: " " }}>
+  Blog Post
+</Link>
+```
+
+And in my opinion, the biggest Next flaw: it does not type search query params. At all.
+You are on your own. Start has you covered. It even supports validation libraries like Zod for more complex data structures
+([docs](https://tanstack.com/router/latest/docs/framework/react/guide/search-params#validating-and-typing-search-params)).
+
+<StartLogo/>
+```tsx
+export const Route = createFileRoute("/blog")({
+  component: Blog,
+  validateSearch: z.object({
+  // highlight-next-line
+    postId: z.string().optional(),
+  }),
+});
+```
+```tsx
+<Link 
+  to="/blog"
+  // highlight-next-line
+  search={{ postId: "123" }}
+>
+  Blog Post
+</Link>
+```
+
+&nbsp;
+
+&nbsp;
+
+To summarize: Start is more flexible in defining routes. It supports both file-based and code-based routing,
+as well as flat-config definition.
+Start forced Next to introduce the `typedRoutes` feature. Turn it on if you use Next.
+However even with it enabled, Next is not 100% typesafe. Start is, and it is very convenient for both devs and AI agents.
+(Here it may seem I'm talking about Start advantages and Next flaws only. But later I also highlight the opposite. Keep reading :)  
+
+&nbsp;
+
+## Data fetching
+
+&nbsp;
+
+### Collocation
+
+This is how Next.js loads data. 
+Just use an async component and await within the component body.
+Extremely convenient.
+
+<NextLogo/>
+```tsx
+async function Blog() {
+  // highlight-next-line
+  const posts = await getPosts();
+  return posts.map(() => <>...</>);
+}
+```
+
+In Start's [documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#route-loaders), the recommended way is to use the Route loader.
+
+<StartLogo/>
+```tsx
+export const Route = createFileRoute("/blog")({
+  component: Blog,
+  // highlight-next-line
+  loader: async () => await getPosts(),
+});
+
+function Blog() {
+  // highlight-next-line
+  const posts = Route.useLoaderData();
+  return posts.map(() => <>...</>);
+}
+```
+
+Personally, I do not like this pattern. It is more verbose.
+But what's more important than syntax is that the component becomes dependent on a route.
+The Blog component cannot be easily used elsewhere in the app.
+I always have to remember to update the parent route loader as well.
+In the case of a Blog component, it is quite simple, but imagine a deeper and more reusable component
+like an `<AuthorAvatar/>` with a tooltip.
+It can be used on a blog post page, then extended to a list of posts, list of authors, author details page, favourite posts, etc.
+In all those places, I would need to remember to update the parent route loader.
+
+Therefore, I recommend integrating TanStack Start with TanStack Query.
+The data loading example would then look like this.
+
+<StartLogo/>
+```tsx
+function Blog() {
+  // highlight-next-line
+  const posts = useSuspenseQuery({
+    queryKey: ['posts'],
+    queryFn: () => getPosts(),
+  });
+  return posts.data.map(() => <>...</>);
+}
+```
+
+It's still more verbose than Next, but we get rid of the route dependency.
+
+You may think that this way it stops being prefetched and may create waterfalls. And you'd be correct.
+However `useSuspenseQuery` can opt-in to being prefetched.
+Both frameworks do it similarly by hoisting the query to the top of the route.
+Next uses `void getPosts()` syntax, Start uses `queryClient.fetchQuery(...)`.
+I will not go into details. Let's just say both frameworks are very similar.
+
+&nbsp;
+
+### Streaming
+
+There is another way to compare Next and Start data fetching: performance.
+Let's look at the request timeline of Next request with awaited data fetching.
+
+<NextLogo/>
+<Timeline>
+  <Marks>
+    <Mark start={0} title="Request" />
+  </Marks>
+  <Swimlane start={0} end="FCP+LCP">
+    <Block type="server" duration={1} />
+    <Block type="fetch" duration={8} />
+    <Block type="server" duration={2} />
+    <Block type="network" duration={4} />
+    <Block type="client" duration={1} />
+  </Swimlane>
+</Timeline >
+
+You can see that awaiting data in Next.js blocks rendering on the server during the fetch. The <abbr title="First Contentful Paint">FCP</abbr> metric suffers.
+Start does the same. It's actually even a little worse because it needs to transfer more data over the network to the client.
+Because Start does not support React Server Components, it has to transfer more components together with data needed to hydrate them.
+
+<StartLogo/>
+<Timeline>
+  <Marks>
+    <Mark start={0} title="Request" />
+  </Marks>
+  <Swimlane start={0} end="FCP+LCP">
+    <Block type="server" duration={1} />
+    <Block type="fetch" duration={8} />
+    <Block type="server" duration={2} />
+    <Block type="network" duration={5} />
+    <Block type="client" duration={1} />
+  </Swimlane>
+</Timeline >
+
+Fortunately, both frameworks support streaming.
+Both adopted React's `<Suspense/>` component, and luckily for us, without any configuration.
+It's enough to just wrap our component within `<Suspense/>`,
+and the content will be streamed, greatly improving both <abbr title="First Contentful Paint">FCP</abbr> and <abbr title="Largest Contentful Paint">LCP</abbr>.
+
+<NextLogo cls="-left-7"/>
+<StartLogo/>
+```tsx
+<Suspense>
+  <Blog />
+</Suspense>
+```
+
+<NextLogo cls="-left-7"/>
+<StartLogo/>
+<Timeline>
+  <Marks>
+    <Mark start={0} title="Request" />
+  </Marks>
+  <Swimlane start={0} end="FCP">
+    <Block type="server" duration={3} />
+    <Block type="network" duration={4} />
+    <Block type="client" duration={1} />
+  </Swimlane>
+  <Swimlane start={1} end="LCP">
+    <Block type="fetch" duration={8} />
+    <Block type="server" duration={1} />
+    <Block type="network" duration={3} />
+    <Block type="client" duration={1} />
+  </Swimlane>
+</Timeline>
+
+&nbsp;
+
+### Fetching with parameters
+
+Often you need to pass some parameters to the fetching endpoint, like `postId`.
+We already covered how to get route params in the [Routing section](#router-typesafety).
+Now let's just combine it with fetching.
+
+In Start, we can simply use the `useParams` hook directly in the component and pass `postId` to the query.
+The syntax is a little verbose, but I love the collocation of code and component independence.
+
+<StartLogo/>
+```tsx
+function BlogPost() {
+  // highlight-next-line
+  const { postId } = Route.useParams();
+  const post = useSuspenseQuery({
+    queryKey: ['posts', postId],
+    queryFn: () => getPost(postId),
+  });
+  return <div>{post.title}</div>;
+}
+```
+
+In Next.js, we access the `params` prop in the page component. Seems pretty straightforward. 
+But there is a catch. Do you see it?
+
+<NextLogo/>
+```tsx
+// /blog/page.tsx
+export default async function BlogPost(
+  { params }: PageProps<"/blog/[postId]">
+) {
+  // highlight-next-line
+  const { postId } = await params;
+  const post = await getPost(postId);
+  return <div>{post.title}</div>;
+}
+```
+
+In Next, we can only get `params` prop in the root page component. `params` are _not_ accessible in nested components.
+This can cause problems. Imagine the `<AuthorAvatar/>` component again, which consumes the `postId` param.
+It will be nested somewhere deep in the component tree.
+
+We need to drill `postId` through each component of the tree until we reach the `<AuthorAvatar/>` component.
+Your first idea is probably to use React Context to avoid prop drilling. But it is not allowed in server components.
+It throws 
+<mark class="error">Error: React Context is unavailable in Server Components</mark>.
+Ouch. We either need to prop drill, use client components, or refactor our component structure.
+Either way, it is a lot of work for such a common task.
+
+<NextLogo/>
+```tsx
+<BlogPostPage/>
+      ⬇ postId
+<PostContent/>
+      ⬇ postId
+<PostHeader/>
+      ⬇ postId
+<PostAuthor/>
+      ⬇ postId
+<AuthorAvatar/>
+```
+
+&nbsp;
+
+&nbsp;
+
+To summarize data fetching:
+I recommend integrating Start with TanStack Query for better code collocation, component reusability, and independence.
+Both Next and Start support streaming via `<Suspense/>` out of the box. And both frameworks can avoid network waterfalls similarly.
+Next uses more concise syntax, but it is not as ergonomic when accessing params in nested components.
+
+&nbsp;
+
+## Performance
+
+&nbsp;
+
+### Bundle size
+
+So far, it looks like TanStack Start is overall better than Next. But here Start loses.
+Start does not support React Server Components yet ([blog post](https://tanstack.com/blog/tanstack-2-years#whats-next)),
+and therefore all code is bundled and shipped to the client—even parts that are static and don't update on the client.
+Next allows you to select which components go to the client and which ones stay server-only.
+Server-only is the default and component is sent to the client only when marked with `"use client"`.
+It can make the client bundle smaller.
+This means less code is shipped to the client, resulting in less network transfer, faster hydration time, and therefore faster <abbr title="Time to Interactive">TTI</abbr>.
+
+<NextLogo/>
+<Timeline>
+  <Marks>
+    <Mark start={0} title="Request" />
+  </Marks>
+  <Swimlane start={0} end="FCP">
+    <Block type="server" duration={2} />
+    <Block type="network" duration={3} title="HTML doc" />
+    <Block type="client" duration={1} title="Processing HTML" />
+  </Swimlane>
+  <Swimlane start={6} end="TTI">
+    <Block type="server" duration={1} />
+    <Block type="network" duration={5} title="Bundle transfer" />
+    <Block type="client" duration={2} title="Hydration" />
+  </Swimlane>
+</Timeline >
+
+<StartLogo/>
+<Timeline>
+  <Marks>
+    <Mark start={0} title="Request" />
+  </Marks>
+  <Swimlane start={0} end="FCP">
+    <Block type="server" duration={2} />
+    <Block type="network" duration={3} title="HTML doc" />
+    <Block type="client" duration={1} title="Processing HTML" />
+  </Swimlane>
+  <Swimlane start={6} end="TTI">
+    <Block type="server" duration={1} />
+    <Block type="network" duration={9} title="Bundle transfer" />
+    <Block type="client" duration={3} title="Hydration" />
+  </Swimlane>
+</Timeline >
+
+Depending on how static your app content is, this can have a significant impact on performance.
+Let's briefly go through the examples of a static and a dynamic component.
+
+A static component could be a `<NavigationBar/>` or an `<ArticleContent/>`. You can still update them sometimes,
+but it is probably fine if they are stale for a few minutes or even hours after the update.
+
+A dynamic component could be a `<CommentSection/>` or a `<LikesCounter/>`.
+It would be a problem if a user sent a comment or pressed a like button but needed to wait several minutes or hours to see it reflected on the page.
+
+That being said, Next has quite a performance advantage in highly static apps—or what some would call websites.
+
+&nbsp;
+
+### Caching and Prerendering
+
+Next defines 4 layers of caching ([docs](https://nextjs.org/docs/14/app/building-your-application/caching#overview)).
+Start fully supports 3 of them. Full Route Cache is supported partially. Let's talk about it.
+
+| Cache layer      | What it caches | Purpose | <img src={nextLogoUrl} alt="Next Logo" className="w-8 block"/> |  <img src={startLogoUrl} alt="Start Logo" className="w-8 block"/> |
+| :---- | :---- | :---- | :---- | :---- |
+| Request Memoization      | Return values of functions       | Re-uses data in a React Component tree on a server during one request | 🟢 | 🟢 |
+| Data Cache   | Data        | Stores data across user requests and deployments | 🟢 | 🟢 |
+| Full Route Cache   | HTML and <abbr title="React Server Components">RSC</abbr> payload        | Reduces server rendering effort for each request | 🟢 | 🟠 |
+| Router Cache   | <abbr title="React Server Components">RSC</abbr> Payload        | Reduces server requests on navigation | 🟢 | 🟢 |
+
+You might know Full Route Cache under other names like Prerendering or Static Generation.
+The main idea is to render a page once—either during build time or during the first request—store the rendered HTML, and serve it from cache on subsequent requests.
+This way, the best <abbr title="First Contentful Paint">FCP</abbr> is achieved.
+Both Start and Next support this feature. Next has it enabled by default;
+Start is opt-in ([docs](https://tanstack.com/start/latest/docs/framework/react/guide/static-prerendering)).
+Next has an easier way to invalidate cache. As far as I know, Start needs to rebuild all pages,
+which is not a problem for small apps, but for large ones it can take a while and is annoying.
+Nevertheless, for the end user, the experience and performance are equal.
+
+<NextLogo cls="-left-7"/>
+<StartLogo/>
+<Timeline>
+  <Marks>
+    <Mark start={0} title="Build" />
+    <Mark start={8} title="Request" />
+  </Marks>
+  <Swimlane start={0}>
+    <Block type="server" duration={1} />
+    <Block type="fetch" duration={5} />
+    <Block type="server" duration={1} />
+  </Swimlane>
+  <Swimlane start={8} end="FCP">
+    <Block type="server" duration={1} />
+    <Block type="network" duration={3} />
+    <Block type="client" duration={1} />
+  </Swimlane>
+</Timeline >
+
+In the real world however, a lot of pages are not fully static or fully dynamic. They contain some static and some dynamic parts—components.
+Imagine a blog post page. It contains a header with author avatar and name, article content, and a comments section.
+Author and Article are static, but because of the comments section, we would not be able to prerender and cache the page.
+
+```tsx
+            <BlogPostPage/>
+      ┌───────────┼────────────┐
+  <Author/>   <Article/>   <Comments/>
+```
+
+Next solves this problem with Cached Components ([docs](https://nextjs.org/docs/app/getting-started/cache-components), previously called Partial Prerendering).
+This way, some components (called shell) are rendered during build and sent to the client immediately when requested,
+while the server fetches dynamic data, renders the rest, and streams it to the client.
+This way, we can prerender the Author and Article components and stream the Comments section during the request. 
+Start does not provide any support for Cached Components.
+
+<NextLogo/>
+<Timeline>
+  <Marks>
+    <Mark start={0} title="Build" />
+    <Mark start={8} title="Request" />
+  </Marks>
+  <Swimlane start={0}>
+    <Block type="server" duration={1} />
+    <Block type="fetch" duration={5} />
+    <Block type="server" duration={1} />
+  </Swimlane>
+  <Swimlane start={8} end="FCP">
+    <Block type="server" duration={2} />
+    <Block type="network" duration={3} />
+    <Block type="client" duration={1} />
+  </Swimlane>
+  <Swimlane start={9} end="LCP">
+    <Block type="fetch" duration={6} />
+    <Block type="server" duration={1} />
+    <Block type="network" duration={2} />
+    <Block type="client" duration={1} />
+  </Swimlane>
+</Timeline >
+
+&nbsp;
+
+&nbsp;
+
+To summarize: Start has a lot of performance optimizations, but Next wins, especially for highly static websites.
+Next supports <abbr title="React Server Components">RSC</abbr>, which results in a smaller bundle and faster <abbr title="Time to Interactive">TTI</abbr> for end users.
+Next supports Cached Components, which improves <abbr title="First Contentful Paint">FCP</abbr> for static pages with some dynamic parts.
+
+&nbsp;
+
+## Summary
+
+So which one is better? Next or Start?
+
+<div className="flex flex-col gap-1 pb-6 w-fit">
+  <div className="rounded-md pr-4 p-2 bg-[#212432] w-fit flex items-center gap-2  mx-2 mr-4">
+    <img src={nextLogoUrl} alt="Next Logo" className="w-8 block relative -ml-6"/>
+    <>Concise syntax that feels productive</>
+  </div>
+  <div className="rounded-md pl-4 p-2 bg-[#212432] w-fit self-end flex items-center gap-2 mx-2 ml-4">
+    <>Flexible route definition with flat-config</>
+    <img src={startLogoUrl} alt="Start Logo" className="w-8 block relative -mr-6" />
+  </div>
+  <div className="rounded-md pr-4 p-2 bg-[#212432] w-fit flex items-center gap-2  mx-2 mr-4">
+    <img src={nextLogoUrl} alt="Next Logo" className="w-8 block relative -ml-6"/>
+    <>Smaller bundle size and therefore better TTI</>
+  </div>
+  <div className="rounded-md pl-4 p-2 bg-[#212432] w-fit self-end flex items-center gap-2  mx-2 ml-4">
+    <>Advanced router typesafety that I can rely on</>
+    <img src={startLogoUrl} alt="Start Logo" className="w-8 block relative -mr-6" />
+  </div>
+  <div className="rounded-md pr-4 p-2 bg-[#212432] w-fit flex items-center gap-2  mx-2 mr-4">
+    <img src={nextLogoUrl} alt="Next Logo" className="w-8 block relative -ml-6"/>
+    <>Granular prerendering and therefore better FCP</>
+  </div>
+  <div className="rounded-md pl-4 p-2 bg-[#212432] w-fit self-end flex items-center gap-2 mx-2 ml-4">
+    <>Ergonomic access to path params with better collocation</>
+    <img src={startLogoUrl} alt="Start Logo" className="w-8 block relative -mr-6" />
+  </div>
+</div>
+
+Both are trying to catch up with each other. But if I had to simplify and answer in a single sentence:
+
+> **Next.js app is more performant for end users** <br/>
+> **TanStack Start app is easier to develop and maintain**
+
+Currently, I would recommend using Next for mostly static websites where its performance-focused approach can outshine Start,
+or where site performance has a high impact on your business—for example, when you know every 100 ms of latency costs you $$$ in revenue.
+
+In all other cases, I would recommend using TanStack Start.
+It's performant enough for most cases, and due to its better <abbr title="Developer Experience">DX</abbr>, it can save you time during development and maintenance.
+And it scales for bigger apps.
+
+Lastly, I want to say I love seeing the frontend market grow and competition pushing and inspiring each other to improve.
+
+Thank you for reading.

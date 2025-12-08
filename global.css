@@ -56,3 +56,7 @@ abbr {
 .pagination-nav {
     display: none;
 }
+
+[class*="codeBlockTitle"] {
+    @apply !border-[var(--ifm-background-color)] italic text-[#9cdcffaa] !py-1;
+}
