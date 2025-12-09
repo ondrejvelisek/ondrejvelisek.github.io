@@ -102,8 +102,6 @@ especially when you use it in combination with classic nested folders definition
 └─ ⚛ index.tsx
 ```
 
-It's also worth mentioning that Start supports code-based routing, which is sometimes useful. E.g. in the case of localized route names.
-Next does not support any of those.
 
 &nbsp;
 
@@ -353,8 +351,9 @@ Let's look at the request timeline of Next request with awaited data fetching.
 </Timeline >
 
 You can see that awaiting data in Next.js blocks rendering on the server during the fetch. The <abbr title="First Contentful Paint">FCP</abbr> metric suffers.
-Start does the same. It's actually even a little worse because it needs to transfer more data over the network to the client.
-Because Start does not support React Server Components, it has to transfer more components together with data needed to hydrate them.
+Start does the same. It's actually even a little worse because it typically needs to transfer more data over the network to the client.
+Because Start does not support React Server Components (yet, [blog post](https://tanstack.com/blog/tanstack-2-years#whats-next)),
+it has to transfer more JS components together with data needed to hydrate them.
 
 <StartLogo/>
 <Timeline>
@@ -580,7 +579,7 @@ Nevertheless, for the end user, the experience and performance are equal.
 
 In the real world however, a lot of pages are not fully static or fully dynamic. They contain some static and some dynamic parts—components.
 Imagine a blog post page. It contains a header with author avatar and name, article content, and a comments section.
-Author and Article are static, but because of the comments section, we would not be able to prerender and cache the page.
+`<Author/>` and `<Article/>` are static, but because of the `<Comments/>` component, we would not be able to prerender and cache the page.
 
 ```tsx
             <BlogPostPage/>
@@ -591,7 +590,7 @@ Author and Article are static, but because of the comments section, we would not
 Next solves this problem with Cached Components ([docs](https://nextjs.org/docs/app/getting-started/cache-components), previously called Partial Prerendering).
 This way, some components (called shell) are rendered during build and sent to the client immediately when requested,
 while the server fetches dynamic data, renders the rest, and streams it to the client.
-This way, we can prerender the Author and Article components and stream the Comments section during the request. 
+This way, we can prerender the `<Author/>` and `<Article/>` components and stream the `<Comments/>` section during the request. 
 Start does not provide any support for Cached Components.
 
 <NextLogo/>
