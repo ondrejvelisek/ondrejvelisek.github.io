@@ -1,0 +1,288 @@
+---
+slug: cost-of-abstraction
+draft: false
+unlisted: true
+---
+
+# Cost of Abstraction
+
+Over my career I saw many medior (mid-level) developers craving more and more abstraction. 
+I was one of them. But over time I see more is not always better.
+A truly senior dev abstracts only when it is needed.
+And I believe it is less than most developers think.
+And therefore AI overuses abstraction too.
+
+
+{/* truncate */}
+
+This is not a new idea but a well-known topic.
+I got inspired by Dan Abramov's
+[The WET Codebase](https://overreacted.io/the-wet-codebase/).
+Sandi Metz put it even shorter: [duplication is far cheaper than the wrong abstraction](https://sandimetz.com/blog/2016/1/20/the-wrong-abstraction).
+What I want to add is the frontend React developer point of view, how TypeScript encourages even less abstraction,
+that AI inherits this wide spread bad practice, and all of us (agents included) pays the hidden costs of abstraction debt. 
+
+
+
+<br />
+
+
+
+## What is abstraction?
+
+It is a boundary between two parts of code. The code it hides, and the code that uses it via an interface.
+This interface has a name, is reusable, and can have some parameters. The best example is a function.
+
+```typescript noBottomMargin
+function sort(array: Array<number>) {
+    // implementation code it hides behind the interface
+}
+```
+```typescript
+// some higher level code uses the interface
+sort([2, 1, 3]);
+```
+
+But there are some other forms of abstraction which may not be that obvious.
+
+- variable/constant
+- JS class
+- CSS class
+- component
+- file
+- package
+- repository
+- programming language
+
+Try to think about how the boundary is represented in each of those.
+What its interface looks like. What is the name. What it hides and how to reuse them.
+
+
+
+<br/>
+
+
+
+## Why to abstract?
+
+Abstractions are crucial for code maintainability. And it's the reason why we are capable of building large systems.
+Imagine you had to always write code for multiplication of two numbers, or sorting an array. Nightmare.
+
+So we abstract to:
+
+- Hide complexity
+- Name a piece of code
+- Reuse a piece of code
+
+If none of the above is needed, we should not abstract. And even though it is true, we still should consider how much.
+Especially in TypeScript codebases.
+
+In a typed codebase, the type system covers two of them in many situations already.
+A type names a shape. And it guards that the shape is correct on every single usage.
+
+Instead of a `createUser` factory, the `User` type guarantees the correct structure and name the object.
+
+An abstraction has to earn its cost by hiding real complexity.
+Not by naming a shape that TypeScript already named.
+
+This is why I think most of the advice written without types in mind does not apply anymore.
+But many developers are still used to them. It's a heritage from the past.
+Still taught in many places even after years with TS. But not relevant anymore.
+
+
+
+
+
+<br/>
+
+
+
+## Every abstraction has a mental cost
+
+And it is not cheap. And it stacks quickly.
+
+The problem is indirection. Code is less collocated. Flow jumps back and forth.
+When reading the code, we need to jump between implementation and its usage.
+Our brain needs to keep a deeper stack of what is where. Therefore it's harder to navigate a codebase.
+It stacks and creates broader interfaces, names and parameters to remember.
+And therefore harder to onboard new people who need to learn more.
+
+Each team member pays this cost. Every time they read the code.
+Every AI agent pays this too. On every request and every context retrieval.
+And every small abstraction adds to everyone, every day.
+
+Hard to feel it in the text. So say you just want to know what color this delete button is.
+
+```tsx noBottomMargin
+<DeleteButton/>
+```
+```tsx noBottomMargin
+<Button variant="danger">Delete account</Button>
+```
+```typescript noBottomMargin
+danger: "btn-danger"
+```
+```css noBottomMargin
+.btn-danger { color: var(--color-danger) }
+```
+```css
+--color-danger: #e5484d;
+```
+
+Five files to answer one trivial question.
+
+And your AI agent is no different. It does not like abstraction either.
+To answer that same trivial question it has to pull all five files into its context.
+More tokens. Slower. And literally more expensive, on every single run.
+Worse, the fuller the context gets, the harder it is to retrieve the right thing from it and the easier it is to get lost jumping around.
+Same indirection, same cost. The only new thing is that you now get an invoice for it.
+
+
+
+<br/>
+
+
+
+
+## Examples when not to abstract
+
+All examples are against abstracting on purpose.
+I believe all readers can easily imagine situations good for abstraction.
+I do not say to not use them, but to learn to calculate the payoff.
+That's what I focus on.
+
+### Constant 
+
+```typescript dont
+const VARIANT = "outline";
+if (mobile) {
+    <Button variant={VARIANT}>
+} else {
+    <Button size="lg" variant={VARIANT}>
+}
+```
+
+Do we need a `VARIANT` constant here?
+It does not hide anything complex. If it hid some complex object structure, I would say yes, but not this simple string.
+It does not need to be named. If it hid something well known, e.g. `PI` or `HTTP_UNAUTHORIZED_STATUS`, I would say yes. But not the case here.
+It is reused two times here. This is not enough to justify the cost.
+The old [rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(computer_programming)) says the same.
+Moreover, we can expect TypeScript will guard the correct enum value in a `variant` component prop. 
+IMO better to inline.
+
+```typescript do
+if (mobile) {
+    <Button variant="outline">
+} else {
+    <Button size="sm" variant="outline">
+}
+```
+
+### Factory function
+
+```typescript dont
+function createUser(name, email, age): User {
+    return {
+        name,
+        email,
+        age
+   } 
+}
+
+const user = createUser(name, email, age)
+```
+
+In this case, the factory just takes all the parameters and passes them to the object.
+The complexity of using this function and creating the object is the same.
+TypeScript helps us with the name and guarding the structure.
+So simply inline the object creation. Even in many places.
+I don't see any disadvantage with TS in place.
+
+- Hides complexity? No
+- Needs a name? No, the `User` type already names it
+- Reused enough? Reused a lot, but TS handles it well.
+
+```typescript do
+const user: User = { name, email, age }
+```
+
+### Element mapping
+
+```tsx dont
+const social = ["fb", "x", "linkedin"]
+return (
+    <ul>
+        {social.map((id) => (
+            <Social key={id} id={id}/>
+        ))}
+    </ul>
+)
+```
+
+This one I see often. Many React developers have a tendency to not duplicate elements in a list.
+But JSX is declarative by itself. Similarly to defining an array of strings. We can just define an array of elements.
+The array does not hide complexity; the Social component does.
+The array does not need a name and is not reused.
+Note the mapping even costs us a `key` prop, which the inlined version does not need at all.
+
+See how much more readable it becomes without.
+
+```tsx do
+return (
+    <ul>
+        <Social id="fb"/>
+        <Social id="x"/>
+        <Social id="linkedin"/>
+    </ul>
+)
+```
+
+### CSS class
+
+```tsx noBottomMargin
+function DeleteAccountBtn() {
+    return (
+        <Button className="delete-account-btn"/>
+    )
+}
+```
+```css dont
+.delete-account-btn {
+    padding-left: 8px;
+}
+```
+
+This is basically what Tailwind does. And I think it is the main reason why it is so popular.
+It allows developers to style elements without any indirection. Any abstraction. Ultimately collocated.
+Just add a utility class to the element. Done. If you need abstraction, abstract. But do not be forced to do it if not needed.
+Note the `DeleteAccountBtn` component is an abstraction too, and a good one. It hides the markup and it names the thing.
+The css class on top of it is the one adding nothing. Does not hide complexity, the component is already named, and the class is used in the component only.
+
+```tsx do
+function DeleteAccountBtn() {
+    return (
+        <Button className="pl-2"/>
+    )
+}
+```
+
+
+
+<br/>
+
+
+
+## Conclusion
+
+Abstractions can have benefits, and our codebase cannot live without them. But ...
+
+import { Quote } from '@site/components/Quote'
+
+<Quote variant="accent">Every abstraction has a mental cost.<br/>
+We often pay the cost without getting any real benefit.</Quote>
+
+And that cost is paid twice now. Once by everyone on the team. Once by every agent run.
+
+Think before you abstract.
+
+Thank you for reading.
