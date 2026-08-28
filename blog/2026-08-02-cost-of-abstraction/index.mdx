@@ -10,8 +10,8 @@ Over my career I have seen many mid-level developers craving more and more abstr
 I was one of them. But over time I have come to see that more is not always better.
 A truly senior dev abstracts only when it is needed.
 And I believe that is less often than most developers think.
-AI learned from humans to overuse abstraction too.
-And you pay up to 30 % more on your total AI agent bill for that.
+And since AI learned to code from humans, it overuses abstraction too.
+And you pay up to 30% more on your total AI agent bill for that.
 
 {/* truncate */}
 
@@ -20,8 +20,8 @@ I was inspired by Dan Abramov's
 [The WET Codebase](https://overreacted.io/the-wet-codebase/).
 Sandi Metz put it even more succinctly in the post
 [The Wrong Abstraction](https://sandimetz.com/blog/2016/1/20/the-wrong-abstraction): "duplication is far cheaper than the wrong abstraction".
-I want to add my own frontend dev view and experience,
-examples I have seen over time, and find out how agents behave and how much this anti-pattern increases our AI costs.
+I want to add my own frontend dev view with examples I have seen over time,
+and to find out how agents behave and how much this anti-pattern increases our AI costs.
 
 
 
@@ -293,7 +293,7 @@ so it guards the usage without introducing indirection.
 
 
 
-### 4. CSS class
+### 4. CSS Class
 
 ```tsx noBottomMargin
 function DeleteAccountBtn() {
@@ -366,7 +366,7 @@ The `DeleteAccountButton` could hide more complexity, which is unnecessarily exp
 One of the main reasons why we use React context is to avoid prop drilling. 
 But what I see very often during code reviews is hooking into a context from a parent component
 instead of the child. This way we have both the context and prop drilling.
-Basically taking the disadvantages of both patterns.
+We get the disadvantages of both patterns.
 
 The rule of thumb here is to hook into the context from the deepest component that is scoped to it.
 In other words, the closest place to where the context value is used.
@@ -418,7 +418,7 @@ function UserProfile() {
 My last example is translation layers with little or no logic. Just renaming incoming values.
 It hides no complex logic, the layer below can be reused the same way, and the renaming hurts more than it helps.
 I guess the developer feels that their naming makes more sense.
-But from my experience, that is often just personal preference. Most importantly, it doubles the naming conventions.
+But that is often just personal preference. Most importantly, it doubles the naming conventions.
 So instead of remembering one set of names, we must now remember two. Increasing our mental load.
 
 From my experience, it is best to follow the naming of the well-known libraries and external systems you use.
@@ -432,9 +432,9 @@ than a great one on top, when you still sometimes need to dig into the sub-optim
 
 
 
-## How Much Extra Do You Pay for AI Agents?
+## How much extra do you pay for AI agents?
 
-You pay up to **30 % more** for AI agents on an over-abstracted codebase. How did I arrive at that number?
+You pay up to **30% more** for AI agents on an over-abstracted codebase. How did I arrive at that number?
 
 I had a hypothesis. But I do not like publishing just my gut feelings. So I started measuring.
 The whole experiment can be found in my GitHub repo. Here I will pin just the most important numbers to keep the article digestible.
@@ -444,7 +444,7 @@ I will call them the **collocated** and the **abstracted** app.
 Run an agent with some task on both, measure the cost and time, and compare.
 In the end, I spent tens of hours falling down this rabbit hole.
 
-So I coded two feature-identical scientific calculators. Vite, React, Tailwind, SPA.
+I coded two feature-identical scientific calculators. Vite, React, Tailwind, SPA.
 Basic and scientific operations, display, history, theming.
 The over-abstracted one has 12 extra layers of various abstractions.
 
@@ -459,16 +459,18 @@ So I created two more calculator variants.
 I took the over-abstracted one and removed some features, so it landed at roughly 2,000 lines too. 
 And I took the collocated calculator and added some more features to it, so it landed at roughly 3,500 lines.
 
-I ran the task again against all four apps. This time I saw just a 3x increase. I also measured the number of AI model round trips.
+I ran the task again against all four apps. This time, comparing apps of equal size, I saw just a 3x increase. I also measured the number of AI model round trips.
 One is usually needed whenever the AI decides to read a file, analyzes it, and then decides again what to do next.
 There was a measurable 2.2x increase in the number of rounds. So I was confident the reason really was the abstraction layers.
 But the 3x increase was still hard to believe, and I was not confident enough to quote it in my article.
 I started digging deeper and analyzing what costs so much.
 
-I started playing with the task prompts. Changing the color was chosen to hit the abstractions hard.
-So I designed 7 different tasks for the AI. Including adding a new feature, removing a feature, refactoring code, and fixing a bug.
+I started playing with the task prompts. Changing a color is a task that hits the abstractions especially hard.
+To be fair, I designed 7 different tasks for the AI. Including adding a new feature, removing a feature, refactoring code, and fixing a bug.
 I even designed one task to hit the collocated app hard. It changes values inside a single over-abstracted layer,
 but 12 files in the collocated variant.
+
+The numbers are the over-abstracted app relative to the collocated one. 2x means twice as expensive.
 
 | Task                              | Why                                         | Cost | Time |
 | --------------------------------- | ------------------------------------------- | ---- | ---- |
@@ -492,18 +494,18 @@ Meaning abstractions that stay in the same file are almost free for AI agents.
 Going back to my examples: #1 and #2 are fine for AI. #3, #4, #5 and #6 increase the AI price and time heavily.
 
 I also found that in some situations it is beneficial to have a well-named abstraction.
-It basically behaves like an index for the AI. So it can search the codebase more easily and locate the desired file faster.
-You can see this effect in the "Find and repair a defect" task which decreases the cost by roughly 10 %.
+It behaves like an index for the AI. So it can search the codebase more easily and locate the desired file faster.
+You can see this effect in the "Find and repair a defect" task which decreases the cost by roughly 10%.
 
 It was obvious that the final cost depends heavily on what the agents do with your codebase. But I still wanted a number to quote.
 So I asked Fable 5 to gather all the information from the experiment and try to extrapolate the numbers
-for a real mid-to-large codebase under regular development. It answered 40 %, along with the method it used to get there.
+for a real mid-to-large codebase under regular development. It answered 40%, along with the method it used to get there.
 
 For me, the number still feels unexpected and huge. Hard to believe. I would love to dig one more level deeper.
 But now I will go to sleep and spend some time with my family.
 Anyway, after all those hours of playing with it, I'm confident enough to quote this:
 
-Over-abstraction has a price: an estimated 30 % increase in your AI agent costs, extrapolated from 394 agent runs on four modeled codebases.
+Over-abstraction has a price: an estimated 30% increase in your AI agent costs, extrapolated from 394 agent runs on four modeled codebases.
 
 
 
@@ -524,7 +526,7 @@ Every indirection created stacks up. Whether introduced by you, your colleagues,
 Those indirection costs are paid by you, your colleagues, and your agents, every time the codebase is read, every day.
 
 After an experiment with 394 agent runs on four codebases, I can confidently estimate
-that development on an **over-abstracted codebase costs 30 % more** in AI agent bill and time
+that development on an **over-abstracted codebase costs 30% more** in AI agent bill and time
 than development on a collocated one.
 
 Think before you abstract. Look for overuse during code reviews. Tell your team. Instruct your agents.
