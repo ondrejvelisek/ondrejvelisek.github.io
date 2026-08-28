@@ -1,0 +1,9 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+html,
+body {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  background-color: var(--calc-surface-shell);
+  color: var(--calc-text-primary);
+}

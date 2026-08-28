@@ -1,0 +1,24 @@
+{
+  "name": "token-abstraction-cost-experiment",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Benchmark: what abstraction costs an AI coding agent, as a 2x2 over code shape and code size.",
+  "scripts": {
+    "setup": "npm install && node scripts/for-each-app.mjs install",
+    "build:all": "node scripts/for-each-app.mjs build",
+    "dev:all": "node scripts/dev-all.mjs",
+    "bench": "node benchmark.mjs --tasks local,localalt,ripple,bugfix,add,remove,crosscut --runs 10",
+    "bench:crosscut:nobash": "node benchmark.mjs --tasks crosscut --runs 10 --no-bash",
+    "bench:controls": "node benchmark.mjs --tasks shallow,located --runs 10 --verify-build",
+    "bench:offline": "node benchmark.mjs --offline",
+    "bench:one": "node benchmark.mjs --tasks local --runs 1",
+    "analyse": "node analyse.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/tokenizer": "^0.0.4"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

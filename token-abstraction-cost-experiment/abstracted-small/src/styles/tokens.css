@@ -1,0 +1,37 @@
+:root {
+  color-scheme: dark;
+
+  --calc-surface-shell: oklch(0.17 0.02 260);
+  --calc-surface-panel: oklch(0.22 0.02 260);
+  --calc-surface-display: oklch(0.13 0.02 260);
+  --calc-surface-raised: oklch(0.26 0.02 260);
+
+  --calc-border-subtle: oklch(0.34 0.02 260);
+  --calc-border-strong: oklch(0.44 0.02 260);
+
+  --calc-text-primary: oklch(0.97 0.005 260);
+  --calc-text-muted: oklch(0.68 0.015 260);
+  --calc-text-faint: oklch(0.5 0.015 260);
+  --calc-text-accent: oklch(0.85 0.12 200);
+  --calc-text-operator: oklch(0.86 0.13 80);
+  --calc-text-danger: oklch(0.75 0.16 20);
+  --calc-text-inverse: oklch(0.15 0.02 260);
+
+  --calc-key-digit-bg: oklch(0.3 0.02 260);
+  --calc-key-digit-bg-hover: oklch(0.35 0.02 260);
+  --calc-key-function-bg: oklch(0.24 0.02 260);
+  --calc-key-function-bg-hover: oklch(0.29 0.02 260);
+  --calc-key-operator-bg: oklch(0.33 0.03 265);
+  --calc-key-operator-bg-hover: oklch(0.38 0.03 265);
+  --calc-key-accent-bg: oklch(0.72 0.13 200);
+  --calc-key-accent-bg-hover: oklch(0.78 0.13 200);
+  --calc-key-danger-bg: oklch(0.31 0.08 20);
+  --calc-key-danger-bg-hover: oklch(0.36 0.09 20);
+
+  --calc-key-radius: 0.75rem;
+  --calc-panel-radius: 1.5rem;
+  --calc-display-radius: 1rem;
+  --calc-key-gap: 0.5rem;
+
+  --calc-focus-ring: oklch(0.8 0.12 200);
+}

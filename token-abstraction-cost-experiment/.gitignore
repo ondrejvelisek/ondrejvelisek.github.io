@@ -1,0 +1,25 @@
+# Dependencies. Each app also carries its own .gitignore listing dist, because
+# Tailwind 4 scans the project and respects .gitignore — without a per-app file the
+# previous build's output feeds the next build's scan and inflates the emitted CSS.
+node_modules
+dist
+
+# Pristine copies the harness makes before a live round and restores after every run.
+# Rebuilt on every `npm run bench`.
+.snapshot
+
+# Browser automation leftovers from manual parity checking.
+.playwright-mcp
+
+# Harness console output is written outside the repo; this is only a guard.
+*.log
+
+.DS_Store
+
+# Deliberately NOT ignored:
+#   results/*.json              one payload per run. This is the data
+#   results/run-log-*.md        per-run verified/unverified verdicts. RESULTS.md
+#                               cannot be regenerated correctly without them
+#   results/transcript-cache.json  files read and edited per run, mined from session
+#                               transcripts. Those transcripts are pruned eventually,
+#                               so this cache is the only durable copy
