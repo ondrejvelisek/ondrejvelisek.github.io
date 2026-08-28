@@ -1,17 +1,17 @@
 ---
-slug: cost-of-abstraction
+slug: the-cost-of-abstraction-for-humans-and-ai-agents
 draft: false
 unlisted: true
 ---
 
-# Cost of Abstraction for AI Agents
+# The Cost of Abstraction for Humans and AI Agents
 
 Over my career I have seen many mid-level developers craving more and more abstraction. 
 I was one of them. But over time I have come to see that more is not always better.
 A truly senior dev abstracts only when it is needed.
 And I believe that is less often than most developers think.
 And since AI learned to code from humans, it overuses abstraction too.
-And you pay up to 30% more on your total AI agent bill for that.
+And you pay an estimated 30% more on your total AI agent bill for that.
 
 {/* truncate */}
 
@@ -78,7 +78,15 @@ So we abstract to:
 If none of the above is needed, we should not abstract. And even when some of the above applies,
 we should still consider not to. We need to balance the cost against the benefit.
 
-The question I asked myself is why developers overuse them so often. I see four reasons.
+
+
+<br/>
+
+
+
+## Why do we over-abstract?
+
+The question I asked myself is why developers overuse abstractions so often. I see four reasons.
 
 1. It is a very quiet enemy. It adds up slowly.
 One wrong abstraction costs us and our velocity almost nothing.
@@ -94,7 +102,13 @@ And we did not have the capacity to think about something like abstractions.
 Junior devs tend to write long functions and files, duplicate code, and name interfaces poorly.
 And their senior mentors tell them to split the code. Reuse lines. Name the functions better.
 Hide the complexity behind interfaces, ... Abstract more. It is taught in courses and university lectures.
-DRY, SOLID, Single responsibility, KISS, one page function, High Cohesion & Low Coupling, Separation of Concerns, ... 
+[DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself),
+[SOLID](https://en.wikipedia.org/wiki/SOLID),
+[Single responsibility](https://en.wikipedia.org/wiki/Single-responsibility_principle),
+[KISS](https://en.wikipedia.org/wiki/KISS_principle),
+[one page function](https://gist.github.com/wojteklu/73c6914cc446146b8b533c0988cf8d29),
+[High Cohesion](https://en.wikipedia.org/wiki/Cohesion_(computer_science)) & [Low Coupling](https://en.wikipedia.org/wiki/Coupling_(computer_programming)),
+[Separation of Concerns](https://en.wikipedia.org/wiki/Separation_of_concerns), ... 
 All those principles are very well known. Because everybody was a junior once.
 It has almost become SW dev culture. Abstractions are perceived as good coding practice. Something to praise and be praised for.
 So naturally, mid-level devs use them a lot.
@@ -163,13 +177,116 @@ How much is it? I measured it. Keep reading.
 
 
 
-## Examples of when not to abstract
+## How much extra do you pay for AI agents? {#experiment}
+
+An estimated **30% more** on an over-abstracted codebase.
+On the worst task I measured, 5x more. On the best one, 20% less.
+How did I arrive at those numbers?
+
+I had a hypothesis. But I do not like publishing just my gut feelings. So I started measuring.
+The whole experiment can be found in my [GitHub repo](https://github.com/ondrejvelisek/ondrejvelisek.github.io/tree/main/token-abstraction-cost-experiment).
+Here I will pin just the most important numbers to keep the article digestible.
+In the end, I spent tens of hours falling down this rabbit hole.
+
+### First naive attempt
+
+The idea was simple. Create two applications. One with nicely collocated code, and one over-abstracted.
+I will call them the **collocated** and the **abstracted** app.
+Run an agent with some task on both, measure the cost and time, and compare.
+
+I coded two feature-identical scientific calculators. Vite, React, Tailwind, SPA.
+Basic and scientific operations, display, history, theming.
+The over-abstracted one has 12 extra layers of various abstractions.
+
+The task for the AI agent was to change the color of the equals button. The over-abstracted one cost 5x more. In both money and time.
+Imagine paying $5000 instead of $1000 on your monthly AI bill. I was shocked. At the same time, it was hard to believe. 
+I repeated the measurements 10x to be >95% confident that the difference was not just random variation.
+Then I started digging deeper.
+
+### Codebase size is not the reason
+
+The first thing I wondered was whether the cost was caused by the increase in source code size, or by the abstraction layers.
+I checked the size and it really was bigger. The collocated app was 2,000 lines, the over-abstracted one 3,500 lines.
+So I created two more calculator variants.
+I took the over-abstracted one and removed some features, so it landed at roughly 2,000 lines too. 
+And I took the collocated calculator and added some more features to it, so it landed at roughly 3,500 lines.
+
+I ran the task again against all four apps. This time, comparing apps of equal size, I saw just a 3x increase. I also measured the number of AI model round trips.
+One is usually needed whenever the AI decides to read a file, analyzes it, and then decides again what to do next.
+There was a measurable 2.2x increase in the number of rounds. So I was confident the reason really was the abstraction layers.
+But the 3x increase was still hard to believe, and I was not confident enough to quote it in my article.
+I started digging deeper and analyzing what costs so much.
+
+### It depends on the task
+
+I started playing with the task prompts. Changing a color is a task that hits the abstractions especially hard.
+To be fair, I designed 7 different tasks for the AI. Including adding a new feature, removing a feature, refactoring code, and fixing a bug.
+I even designed one task to hit the collocated app hard. It changes values inside a single over-abstracted layer,
+but 12 files in the collocated variant.
+
+The numbers are the over-abstracted app relative to the collocated one. 2x means twice as expensive.
+
+| Task                              | Why                                         | Cost | Time |
+| --------------------------------- | ------------------------------------------- | ---- | ---- |
+| Change one value at one leaf      | finding the place; all apps edit one file   | 5.0x | 4.3x |
+| Send a value through the view model | crossing layer boundaries                 | 2.1x | 2.3x |
+| Edit one string                   | minimal possible task, one line in all apps | 1.8x | 1.6x |
+| Delete a feature                  | unpicking vs deleting                       | 1.6x | 1.3x |
+| Add a new operation key           | growing a registry vs adding a leaf         | 1.3x | 0.9x |
+| Find and repair a defect          | finding, rather than specifying             | 0.9x | 1.3x |
+| Restyle twelve keys at once       | the case abstraction is built for           | 0.8x | 0.7x |
+
+The cost varies between 0.8x and 5x. There are tasks on which the over-abstracted app is both cheaper and faster.
+However, it's worth mentioning that for the last task I had to disable bash tooling for the AI agent.
+Otherwise it used bash `sed` to update the 12 files in the collocated app and was again 1.3x cheaper.
+
+###  Where the money goes
+
+After running all of those tasks (394 agent runs), I had enough data
+to look at the correlation between round trips, file sizes, costs, and the number of files read.
+It seems the file size increase itself adds very little to the final cost.
+The heaviest contributors to the price are the files read and the round trips.
+Meaning abstractions that stay in the same file are almost free for AI agents.
+The ones that cross file boundaries are the expensive ones. Keep this in mind for the [examples below](#examples).
+
+I also found that in some situations it is beneficial to have a well-named abstraction.
+It behaves like an index for the AI. So it can search the codebase more easily and locate the desired file faster.
+You can see this effect in the "Find and repair a defect" task which decreases the cost by roughly 10%.
+
+### Extrapolating to a real codebase
+
+It was obvious that the final cost depends heavily on what the agents do with your codebase. But I still wanted a number to quote.
+So I asked Fable 5 to gather all the information from the experiment and try to extrapolate the numbers
+for a real mid-to-large codebase under regular development. It answered 40%, along with
+[the method it used to get there](https://github.com/ondrejvelisek/ondrejvelisek.github.io/blob/main/token-abstraction-cost-experiment/CONCLUSION.md#one-number-anyway).
+I rounded it down to 30% to stay conservative. The extrapolation is a model, not a measurement.
+
+For me, the number still feels unexpected and huge. Hard to believe. I would love to dig one more level deeper.
+Anyway, after tens of hours of playing with it, I'm confident enough to quote this:
+
+Over-abstraction has a price: an estimated 30% increase in your AI agent costs.
+
+But now I will go to sleep and spend some time with my family. :)
+
+
+
+<br/>
+
+
+
+
+## Examples of when not to abstract {#examples}
 
 Note that all the examples are against abstraction. And that's on purpose.
 It's not that I think we should never abstract. Please abstract. It's crucial for anything non-trivial.
 Just learn how often and where to put the boundary.
 I believe all readers can easily imagine situations where abstraction is good.
 We were taught them as juniors. Here I present the cases where it is unnecessary.
+
+The [experiment](#experiment) showed that what costs AI agents is crossing file boundaries.
+Examples #1 and #2 stay within one file, so they are almost free for agents.
+They still cost the human reader, though. Indirection hurts, even on one screen.
+Examples #3, #4, #5 and #6 cross files. Those are the ones that hit both your colleagues and your AI bill.
 
 
 
@@ -425,89 +542,6 @@ From my experience, it is best to follow the naming of the well-known libraries 
 Like reusing status names from TanStack Query (loading/pending/fetching/idle/...) or following your backend REST endpoint names.
 Even if they are a bit off for your specific frontend case. It's easier to consume just one sub-optimal layer of names
 than a great one on top, when you still sometimes need to dig into the sub-optimal one underneath anyway.
-
-
-
-<br/>
-
-
-
-## How much extra do you pay for AI agents?
-
-You pay up to **30% more** for AI agents on an over-abstracted codebase. How did I arrive at that number?
-
-I had a hypothesis. But I do not like publishing just my gut feelings. So I started measuring.
-The whole experiment can be found in my GitHub repo. Here I will pin just the most important numbers to keep the article digestible.
-
-The idea was simple. Create two applications. One with nicely collocated code, and one over-abstracted.
-I will call them the **collocated** and the **abstracted** app.
-Run an agent with some task on both, measure the cost and time, and compare.
-In the end, I spent tens of hours falling down this rabbit hole.
-
-I coded two feature-identical scientific calculators. Vite, React, Tailwind, SPA.
-Basic and scientific operations, display, history, theming.
-The over-abstracted one has 12 extra layers of various abstractions.
-
-The task for the AI agent was to change the color of the equals button. The over-abstracted one cost 5x more. In both money and time.
-Imagine paying $5000 instead of $1000 on your monthly AI bill. I was shocked. At the same time, it was hard to believe. 
-I repeated the measurements 10x to be >95% confident that the difference was not just random variation.
-Then I started digging deeper.
-
-The first thing I wondered was whether the cost was caused by the increase in source code size, or by the abstraction layers.
-I checked the size and it really was bigger. The collocated app was 2,000 lines, the over-abstracted one 3,500 lines.
-So I created two more calculator variants.
-I took the over-abstracted one and removed some features, so it landed at roughly 2,000 lines too. 
-And I took the collocated calculator and added some more features to it, so it landed at roughly 3,500 lines.
-
-I ran the task again against all four apps. This time, comparing apps of equal size, I saw just a 3x increase. I also measured the number of AI model round trips.
-One is usually needed whenever the AI decides to read a file, analyzes it, and then decides again what to do next.
-There was a measurable 2.2x increase in the number of rounds. So I was confident the reason really was the abstraction layers.
-But the 3x increase was still hard to believe, and I was not confident enough to quote it in my article.
-I started digging deeper and analyzing what costs so much.
-
-I started playing with the task prompts. Changing a color is a task that hits the abstractions especially hard.
-To be fair, I designed 7 different tasks for the AI. Including adding a new feature, removing a feature, refactoring code, and fixing a bug.
-I even designed one task to hit the collocated app hard. It changes values inside a single over-abstracted layer,
-but 12 files in the collocated variant.
-
-The numbers are the over-abstracted app relative to the collocated one. 2x means twice as expensive.
-
-| Task                              | Why                                         | Cost | Time |
-| --------------------------------- | ------------------------------------------- | ---- | ---- |
-| Change one value at one leaf      | finding the place; all apps edit one file   | 5.0x | 4.3x |
-| Send a value through the view model | crossing layer boundaries                 | 2.1x | 2.3x |
-| Edit one string                   | minimal possible task, one line in all apps | 1.8x | 1.6x |
-| Delete a feature                  | unpicking vs deleting                       | 1.6x | 1.3x |
-| Add a new operation key           | growing a registry vs adding a leaf         | 1.3x | 0.9x |
-| Find and repair a defect          | finding, rather than specifying             | 0.9x | 1.3x |
-| Restyle twelve keys at once       | the case abstraction is built for           | 0.8x | 0.7x |
-
-The cost varies between 0.8x and 5x. There are tasks on which the over-abstracted app is both cheaper and faster.
-However, it's worth mentioning that for the last task I had to disable bash tooling for the AI agent.
-Otherwise it used bash `sed` to update the 12 files in the collocated app and was again 1.3x cheaper.
-
-After running all of those tasks (394 agent runs), I had enough data
-to look at the correlation between round trips, file sizes, costs, and the number of files read.
-It seems the file size increase itself adds very little to the final cost.
-The heaviest contributors to the price are the files read and the round trips.
-Meaning abstractions that stay in the same file are almost free for AI agents.
-Going back to my examples: #1 and #2 are fine for AI. #3, #4, #5 and #6 increase the AI price and time heavily.
-
-I also found that in some situations it is beneficial to have a well-named abstraction.
-It behaves like an index for the AI. So it can search the codebase more easily and locate the desired file faster.
-You can see this effect in the "Find and repair a defect" task which decreases the cost by roughly 10%.
-
-It was obvious that the final cost depends heavily on what the agents do with your codebase. But I still wanted a number to quote.
-So I asked Fable 5 to gather all the information from the experiment and try to extrapolate the numbers
-for a real mid-to-large codebase under regular development. It answered 40%, along with the method it used to get there.
-
-For me, the number still feels unexpected and huge. Hard to believe. I would love to dig one more level deeper.
-But now I will go to sleep and spend some time with my family.
-Anyway, after all those hours of playing with it, I'm confident enough to quote this:
-
-Over-abstraction has a price: an estimated 30% increase in your AI agent costs, extrapolated from 394 agent runs on four modeled codebases.
-
-
 
 
 
