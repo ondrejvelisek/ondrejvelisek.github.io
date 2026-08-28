@@ -10,7 +10,7 @@ const VARIANTS: Record<Variant, string> = {
   banner:
     "border-0 rounded-lg px-6 py-4 bg-[hsl(var(--ifm-color-primary-hue)_68%_55%_/_0.1)] text-[var(--ifm-color-primary-lightest)]",
   // No decoration, just big and centered
-  plain: "border-0 px-0 text-center text-[#e8e8e8]",
+  plain: "border-0 px-0 text-[#e8e8e8]",
 };
 
 export function Quote({
@@ -26,7 +26,7 @@ export function Quote({
 >) {
   return (
     <blockquote
-      className={`text-[1.4rem] leading-snug italic font-normal my-8 ${VARIANTS[variant]} ${className}`}
+      className={`text-[1.4rem] leading-snug font-normal my-8 ${VARIANTS[variant]} ${className}`}
       {...props}
     >
       {children}

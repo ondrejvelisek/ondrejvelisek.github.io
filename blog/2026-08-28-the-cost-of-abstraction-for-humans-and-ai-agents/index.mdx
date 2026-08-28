@@ -1,5 +1,6 @@
 ---
 slug: the-cost-of-abstraction-for-humans-and-ai-agents
+image: ./the-cost-of-abstraction.webp
 draft: false
 unlisted: true
 ---
@@ -23,6 +24,9 @@ Sandi Metz put it even more succinctly in the post
 I want to add my own frontend dev view with examples I have seen over time,
 and to find out how agents behave and how much this anti-pattern increases our AI costs.
 
+<div className="[&_img]:rounded-xl">
+![The WET Codebase](./the-cost-of-abstraction.webp)
+</div>
 
 
 <br />
@@ -202,6 +206,10 @@ The task for the AI agent was to change the color of the equals button. The over
 Imagine paying $5000 instead of $1000 on your monthly AI bill. I was shocked. At the same time, it was hard to believe. 
 I repeated the measurements 10x to be >95% confident that the difference was not just random variation.
 Then I started digging deeper.
+
+<div className="[&_img]:rounded-xl">
+![The WET Codebase](./calculators.webp)
+</div>
 
 ### Codebase size is not the reason
 
@@ -559,9 +567,14 @@ We often pay the cost without getting any real benefit.
 Every indirection created stacks up. Whether introduced by you, your colleagues, or your AI agents.
 Those indirection costs are paid by you, your colleagues, and your agents, every time the codebase is read, every day.
 
-After an experiment with 394 agent runs on four codebases, I can confidently estimate
-that development on an **over-abstracted codebase costs 30% more** in AI agent bill and time
-than development on a collocated one.
+import { Quote } from '@site/components/Quote.tsx';
+
+<Quote variant="plain"><span className="text-[1rem]">After an experiment with 394 agent runs on four codebases, I can confidently estimate
+that development on </span><br/>**an over-abstracted codebase costs 30% more**<br/><span className="text-[1rem]">in AI agent bill and time than development on a collocated one.</span></Quote>
+
+After this realizing the cost I just started to use following rules.
+Making them openly available here: <a href="/no-over-abstraction.md" download>no-over-abstraction.md</a>.
+Hoping it will help you to reduce both mental load and AI bill.
 
 Think before you abstract. Look for overuse during code reviews. Tell your team. Instruct your agents.
 
