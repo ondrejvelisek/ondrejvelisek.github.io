@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://www.googletagmanager.com">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-BZWT5GPVTE"></script>
 <script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","G-BZWT5GPVTE",{anonymize_ip:!0})</script><link rel="stylesheet" href="/assets/css/styles.622a0386.css">
-<script src="/assets/js/runtime~main.27767df9.js" defer="defer"></script>
+<script src="/assets/js/runtime~main.0fc6cd40.js" defer="defer"></script>
 <script src="/assets/js/main.4faed1c7.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -131,9 +131,9 @@ How much is it? I measured it. Keep reading.</p>
 On the worst task I measured, 5x more. On the best one, 20% less.
 How did I arrive at those numbers?</p>
 <p>I had a hypothesis. But I do not like publishing just my gut feelings. So I started measuring.
+In the end, I spent tens of hours falling down this rabbit hole.
 The whole experiment can be found in my <a href="https://github.com/ondrejvelisek/ondrejvelisek.github.io/tree/main/token-abstraction-cost-experiment" target="_blank" rel="noopener noreferrer">GitHub repo</a>.
-Here I will pin just the most important numbers to keep the article digestible.
-In the end, I spent tens of hours falling down this rabbit hole.</p>
+Here I will pin just the most important numbers to keep the article digestible.</p>
 <h3 class="anchor anchorWithStickyNavbar_BFL_" id="first-naive-attempt">First naive attempt<a href="#first-naive-attempt" class="hash-link" aria-label="Direct link to First naive attempt" title="Direct link to First naive attempt">​</a></h3>
 <p>The idea was simple. Create two applications. One with nicely collocated code, and one over-abstracted.
 I will call them the <strong>collocated</strong> and the <strong>abstracted</strong> app.
@@ -141,10 +141,12 @@ Run an agent with some task on both, measure the cost and time, and compare.</p>
 <p>I coded two feature-identical scientific calculators. Vite, React, Tailwind, SPA.
 Basic and scientific operations, display, history, theming.
 The over-abstracted one has 12 extra layers of various abstractions.
-I know the 12 layers is extreme for such a small app but I wanted to make the effect big enough to be measured.</p>
-<p>I used Sonnet 5 model. The task for the AI agent was to change the color of the equals button. The over-abstracted one cost 5x more. In both money and time.
+I know the 12 layers is extreme for such a small app but I wanted to make the effect big enough to be measured.
+However same 12 layers in mid-large codebase is in my experience a standard.</p>
+<p>I used model Sonnet 5. The task for the AI agent was to change the color of the equals button.
+The over-abstracted one cost 5x more. In both money and time.
 Imagine paying $5000 instead of $1000 on your monthly AI bill. I was shocked. At the same time, it was hard to believe.
-I repeated the measurements 10x to be &gt;95% confident that the difference was not just random variation.
+I repeated the measurements 10x to be &gt;95% confident that the difference was not just random variation. Same result.
 Then I started digging deeper.</p>
 <div class="[&amp;_img]:rounded-xl"><p><img decoding="async" loading="lazy" alt="Four calculators were build for the experiement" src="/assets/images/calculators-82a4745dc2ff62e4ade34e81b951dc47.webp" width="1658" height="617" class="img_jf__"></p></div>
 <h3 class="anchor anchorWithStickyNavbar_BFL_" id="codebase-size-is-not-the-reason">Codebase size is not the reason<a href="#codebase-size-is-not-the-reason" class="hash-link" aria-label="Direct link to Codebase size is not the reason" title="Direct link to Codebase size is not the reason">​</a></h3>
@@ -172,6 +174,7 @@ Otherwise it used bash <code>sed</code> to update the 12 files in the collocated
 <p>After running all of those tasks (394 agent runs), I had enough data
 to look at the correlation between round trips, file sizes, costs, and the number of files read.
 It seems the file size increase itself adds little to the final cost.
+I think it is beacuse of a context cache.
 The heaviest contributors to the price are the files read and the round trips.
 Meaning abstractions that stay in the same file are almost free for AI agents.
 The ones that cross file boundaries are the expensive ones. Keep this in mind for the <a href="#examples">examples below</a>.</p>
@@ -265,7 +268,7 @@ But what I see very often during code reviews is hooking into a context from a p
 instead of the child. This way we have both the context and prop drilling.
 We get the disadvantages of both patterns.</p>
 <p>The rule of thumb here is to hook into the context from the deepest component that is scoped to it.
-In other words, the closest place to where the context value is used.</p>
+In other words, the closest to where the context value is used.</p>
 <p>In this example, we move the <code>useDeleteAccountContext</code> hook from the parent <code>DeleteAccountModal</code> to the child <code>DeleteAccountButton</code>.
 But not deeper into the general <code>Button</code> component,
 because that one is meant to be reused in other places outside the scope of <code>DeleteAccountModal</code> and its context.</p>
@@ -295,8 +298,8 @@ Those indirection costs are paid by you, your colleagues, and your agents, every
 <p>After an experiment with 394 agent runs on four codebases, I estimate
 that development on <strong>an over-abstracted codebase costs 30% more</strong>
 in AI agent bill and time than development on a collocated one.</p>
-<p>After realizing the cost, I started to use these rules.
-Making them openly available here: <a href="/no-over-abstraction.md" download="">no-over-abstraction.md</a>.
+<p>After realizing the cost, I started to use these rules: <a href="/no-over-abstraction.md" download="">no-over-abstraction.md</a>.
+Making them openly available here.
 Hoping it will help you to reduce both mental load and AI bill.</p>
 <p>Think before you abstract. Look for overuse during code reviews. Tell your team. Instruct your agents.</p>
 <p>Thank you for reading.</p>
