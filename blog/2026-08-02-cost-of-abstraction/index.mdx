@@ -6,22 +6,22 @@ unlisted: true
 
 # Cost of Abstraction for AI Agents
 
-Over my career I saw many mid-level developers craving more and more abstraction. 
-I was one of them. But over time I see that more is not always better.
+Over my career I have seen many mid-level developers craving more and more abstraction. 
+I was one of them. But over time I have come to see that more is not always better.
 A truly senior dev abstracts only when it is needed.
-I believe it is less than most developers think.
-Therefore AI overuses abstraction too.
-And you pay up to 30 % more on you total AI agents bill for that.
+And I believe that is less often than most developers think.
+AI learned from humans to overuse abstraction too.
+And you pay up to 30 % more on your total AI agent bill for that.
 
 {/* truncate */}
 
-Over-abstraction is not a new idea but a well-known topic.
-I got inspired by Dan Abramov's
+Over-abstraction is not a new idea. It is a well-known topic.
+I was inspired by Dan Abramov's
 [The WET Codebase](https://overreacted.io/the-wet-codebase/).
-Sandi Metz in the post [The Wrong Abstraction](https://sandimetz.com/blog/2016/1/20/the-wrong-abstraction)
-put it even shorter: "duplication is far cheaper than the wrong abstraction".
-I want to add my own frontend dev view, my experience with TypeScript,
-examples I saw over time and find out how agents behave and how much this anti pattern increases our AI costs.
+Sandi Metz put it even more succinctly in the post
+[The Wrong Abstraction](https://sandimetz.com/blog/2016/1/20/the-wrong-abstraction): "duplication is far cheaper than the wrong abstraction".
+I want to add my own frontend dev view and experience,
+examples I have seen over time, and find out how agents behave and how much this anti-pattern increases our AI costs.
 
 
 
@@ -44,7 +44,7 @@ function sort(array: Array<number>) {
 sort([2, 1, 3]);
 ```
 
-But there are some other forms of abstraction which may not be that obvious.
+But there are other forms of abstraction which may not be that obvious.
 
 - variable/constant
 - JS class
@@ -66,8 +66,8 @@ What its interface looks like. What its name is. What it hides and how to reuse 
 
 ## Why abstract?
 
-Abstractions are crucial for code maintainability. And it's the reason why we are capable of building large systems.
-Imagine you had to always write code for sorting an array or multiplication of two numbers. Nightmare.
+Abstractions are crucial for code maintainability. And they are the reason why we are capable of building large systems.
+Imagine you always had to write the code for sorting an array or multiplying two numbers. Nightmare.
 
 So we abstract to:
 
@@ -75,37 +75,37 @@ So we abstract to:
 - Name a piece of code
 - Reuse a piece of code
 
-If none of the above is needed, we should not abstract. And even though some of the above applies,
-we still should consider not to. We need to balance the cost with the benefit.
+If none of the above is needed, we should not abstract. And even when some of the above applies,
+we should still consider not to. We need to balance the cost against the benefit.
 
-The question I asked myself is why developers overuse them so often. I see three reasons.
+The question I asked myself is why developers overuse them so often. I see four reasons.
 
 1. It is a very quiet enemy. It adds up slowly.
-One wrong abstraction costs almost nothing to us and our velocity.
-So it's hard to focus on and spot it.
+One wrong abstraction costs us and our velocity almost nothing.
+So it's hard to focus on and spot.
 
-1. When a developer is afraid of touching the abstraction layer, he rather create a new one.
-It can be due to a time pressure. So he cant properly read and understand all the logic and adjust the existing layer.
-Instead, he creates a new one on top of it.
+1. When a developer is afraid of touching an existing abstraction layer, they would rather create a new one.
+It can be due to time pressure. They can't properly read and understand all the logic and adjust the existing layer.
+Instead, they create a new one on top of it.
 
-1. Every junior developer, including me, when starting to code, naturally did not create abstractions much.
-We focused on the goal. To make it work. It was hard enough and challenging on its own.
-And we did not have the capacity or time to think about something like abstractions.
-Junior devs tend to create long functions and files, duplicate code, and do not name the interfaces nicely.
+1. Every junior developer, including me, naturally did not create many abstractions when starting to code.
+We focused on the goal. To make it work. It was hard and challenging enough on its own.
+And we did not have the capacity to think about something like abstractions.
+Junior devs tend to write long functions and files, duplicate code, and name interfaces poorly.
 And their senior mentors tell them to split the code. Reuse lines. Name the functions better.
 Hide the complexity behind interfaces, ... Abstract more. It is taught in courses and university lectures.
 DRY, SOLID, Single responsibility, KISS, one page function, High Cohesion & Low Coupling, Separation of Concerns, ... 
 All those principles are very well known. Because everybody was a junior once.
-It almost becomes a SW dev culture. Abstractions are perceived as a good code practice. Something to praise and be praised for.
-So naturally mid-level devs are using them a lot.
+It has almost become SW dev culture. Abstractions are perceived as good coding practice. Something to praise and be praised for.
+So naturally, mid-level devs use them a lot.
 
-1. And lastly, in such pro-abstraction society, it is hard to
-learn it might become a problem, focus on it, spot the overuse and very hard to speak up in front of your team.
-In the end, that's the reason why I write about it. :) 
+1. And lastly, in such a pro-abstraction culture, it is hard to
+learn that abstractions might be a problem, learn to spot the overuse, and very hard to speak up in front of your team.
+In the end, that's the reason why I am writing about it. :) 
 
-AI is trained on human written code.
+AI is trained on human-written code.
 So naturally it learned this pattern.
-And from my experience repeats it often.
+And it repeats it often.
 
 
 
@@ -118,17 +118,17 @@ And from my experience repeats it often.
 It is not cheap. And it stacks quickly.
 
 The problem is indirection. Code is less collocated. Program flow jumps back and forth.
-When reading the code, we need to jump between implementation and its usage.
+When reading the code, we need to jump between the implementation and its usage.
 Our brain needs to keep a deeper stack of what is where.
-Therefore it's harder to navigate a codebase.
-It stacks and creates broader interfaces, names and parameters to remember.
-And therefore harder to onboard new people who need to learn more.
+Therefore it's harder to navigate the codebase.
+It stacks up and creates more interfaces, names and parameters to remember.
+And therefore it's harder to onboard new people, who have more to learn.
 
 Each team member pays this cost. Every time they read the code.
 Every AI agent pays this too. On every request and every context retrieval.
-And every small abstraction adds to everyone, every day.
+And every small abstraction adds to the cost for everyone, every day.
 
-Hard to feel it in the text. So say you just want to know what color this delete button is.
+It's hard to feel it in text. So say you just want to know what color this delete button is.
 
 ```tsx noBottomMargin
 <DeleteButton/>
@@ -151,12 +151,11 @@ danger: "btn-danger"
 
 Six files to answer one trivial question.
 
-And your AI agent does not like abstraction either.
-To answer that same trivial question it has to pull all six files into its context.
-More tokens. Digging one file after each other. Slower. And literally more expensive, on every single run.
+And your AI agent has to pull all six files into its context.
+More tokens. Digging through one file after another. Slower. And literally more expensive, on every single run.
 Worse, the fuller the context gets, the harder it is to retrieve the right thing from it.
 Same indirection, same cost. The only new thing is that you now get an invoice for it.
-
+How much is it? I measured it. Keep reading.
 
 
 <br/>
@@ -164,13 +163,13 @@ Same indirection, same cost. The only new thing is that you now get an invoice f
 
 
 
-## Examples when not to abstract
+## Examples of when not to abstract
 
-Note that all examples are against abstraction. And it's on purpose.
+Note that all the examples are against abstraction. And that's on purpose.
 It's not that I think we should never abstract. Please abstract. It's crucial for anything non-trivial.
 Just learn how often and where to put the boundary.
-I believe all readers can easily imagine situations good for abstraction.
-As we were taught as juniors. Here I present when it is unnecessary.
+I believe all readers can easily imagine situations where abstraction is good.
+We were taught them as juniors. Here I present the cases where it is unnecessary.
 
 
 
@@ -198,11 +197,12 @@ if (mobile) {
 ```
 
 Do we need a `VARIANT` constant here?
-Does it need a name? If it were something well known like `PI` or `HTTP_UNAUTHORIZED_STATUS`, I would be ok with it. But it's just a general prop value here.
-It is reused two times here. This is not enough to justify the cost.
-The [rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(computer_programming)) says the same. I would even argue that even three would not be enough here.
+Does it need a name? If it were something well-known like `PI` or `HTTP_UNAUTHORIZED_STATUS`, I would be ok with it.
+But it's just a general prop value here.
+It is reused twice here. That is not enough to justify the cost.
+The [rule of three](https://en.wikipedia.org/wiki/Rule_of_three_(computer_programming)) says the same.
 And it does not hide anything complex. Just a simple string.
-Moreover, we can expect TypeScript will guard the correct enum value in a `variant` component prop. 
+Moreover, we can expect TypeScript to guard the correct enum value in the `variant` component prop. 
 No real benefit here. Inline it.
 
 
@@ -235,16 +235,16 @@ return (
 )
 ```
 
-This one I see often. Many React developers have a tendency to not duplicate JSX elements in a list.
-Instead they create an array of data and map over it in the template.
-But the array does not need a name, is used once and does not hide complexity. The Social component does.
+This one I see often. Many React developers have a tendency to avoid duplicating JSX elements in a list.
+Instead, they create an array of data and map over it in the template.
+But the array does not need a name, is used only once, and does not hide any complexity. The `Social` component does.
 
 JSX is declarative by itself. It's basically a value expression.
 Instead of defining an array of strings, we can just define an array of JSX elements.
-It's fair to say, this works only if the array is static.
+It's important to say this works only if the array is static.
 Note the mapping even costs us a `key` prop, which the inlined version does not need at all.
 
-See how much more readable it becomes without.
+See how much more readable it becomes without it.
 
 
 
@@ -274,18 +274,18 @@ const user: User = { name, email, age }
 
 In this case, I want to focus on complexity and TypeScript.
 The factory takes three parameters and passes them to the object.
-Focus on the complexity of calling `createUser` function and creating the object. It is the same.
-The name of the shape, three parameters and some parentheses/braces syntax around.
+Compare the complexity of calling the `createUser` function with creating the object directly. It is the same.
+The name of the shape, three parameters, and some parentheses/braces syntax around them.
 The only difference is that the reader is forced to learn the non-standard `createUser` function.
 
-TypeScript helps us with the name and guarding the structure while using it.
-So simply inline the object creation. Even if used in many places.
+TypeScript helps us with the name and guards the structure while we use it.
+So simply inline the object creation. Even if it is used in many places.
 
-We can generalize the first two examples here.
+We can generalize examples 1 and 3 here.
 Both the constant and the factory function try to abstract a value expression (not imperative code statements).
-In typed codebases it's very hard to justify abstraction of a value. Even a complex one.
-Try to always improve your type system instead (e.g. introduce enums, string literals, discriminated unions)
-so it guards the usage instead of introducing an indirection.
+In typed codebases, it's very hard to justify abstracting a value. Even a complex one.
+Always try to improve your type system instead (e.g. introduce enums, string literals, discriminated unions)
+so it guards the usage without introducing indirection.
 
 
 
@@ -317,15 +317,18 @@ function DeleteAccountBtn() {
 ```
 
 This is basically what Tailwind does. 
-It allows developers to style elements without any indirection. Any abstraction. Ultimately collocated.
-And I think it is the main reason why it is so popular.
+It allows developers to style elements without any indirection. Without any abstraction. Completely collocated.
+And I think it is the main reason why Tailwind is so popular.
 
-Just add a utility class to the element. Done. If you need abstraction, abstract. But do not be forced to do it if not needed.
+Just add a utility class to the element. Done. If you need abstraction, abstract. But don't be forced into it when it's not needed.
 Note the `DeleteAccountBtn` component is an abstraction too, and a good one.
 It hides the markup and it names the thing well. That boundary makes sense.
-The CSS class on top of it is the one adding nothing. 
-Does not hide complexity, the component is already named, and the class is used in the component only.
+The CSS class on top of it is the one that adds nothing. 
+It does not hide complexity, the component is already named, and the class is used only in this component.
 
+
+
+<br/>
 
 
 
@@ -357,22 +360,22 @@ function DeleteAccountButton() {
 ```
 
 This example is not about adding a new layer of abstraction
-but about placing a logic into a wrong abstraction layer.
-This `DeleteAccountButton` abstraction can hide some more complexity which is unneccessary exposed.
+but about placing logic in the wrong abstraction layer.
+The `DeleteAccountButton` could hide more complexity, which is unnecessarily exposed here.
 
-One of the main reasons why we use context is to avoid prop drilling. 
-But what I see very often during code reviews is hooking into a context from a parent component,
-instead of child. This way we have both, the context and prop drilling.
-Basically taking the disadvantage of both patterns.
+One of the main reasons why we use React context is to avoid prop drilling. 
+But what I see very often during code reviews is hooking into a context from a parent component
+instead of the child. This way we have both the context and prop drilling.
+Basically taking the disadvantages of both patterns.
 
-The rule of thumb here, is to hook into context from the deepest component which is scoped to it.
-In other words, closest place where the context value is used.
+The rule of thumb here is to hook into the context from the deepest component that is scoped to it.
+In other words, the closest place to where the context value is used.
 
-In this example we move hook `useDeleteAccountContext` from parent `DeleteAccountModal` to child `DeleteAccountButton`.
-But not deeper into general `Buttom` component.
-Because it is meant to be reused also in some other places outside of scope of `DeleteAccountModal` and its context.
+In this example, we move the `useDeleteAccountContext` hook from the parent `DeleteAccountModal` to the child `DeleteAccountButton`.
+But not deeper into the general `Button` component,
+because that one is meant to be reused in other places outside the scope of `DeleteAccountModal` and its context.
 
-If we would leave it in modal, we would force reader (both human and agent) to jump in between two files
+If we left it in the modal, we would force the reader (both human and agent) to jump between two files
 and track the usage of the extra prop.
 
 
@@ -413,15 +416,15 @@ function UserProfile() {
 ```
 
 My last example is translation layers with little or no logic. Just renaming incoming values.
-It hides no complex logic, the layer below can be reused the same way, and renaming hurts more than helps.
-I guess the developers sees that their naming makes more sense.
-But from my experience, it could be a personal opinion. But must importantly its doubles the naming conventions.
-So instead of remembering one set of names, we must now two. Increasing our mental load.
+It hides no complex logic, the layer below can be reused the same way, and the renaming hurts more than it helps.
+I guess the developer feels that their naming makes more sense.
+But from my experience, that is often just personal preference. Most importantly, it doubles the naming conventions.
+So instead of remembering one set of names, we must now remember two. Increasing our mental load.
 
-From my experience the best is to follow the naming from a well-known libraries and extenral systems you use.
-Like reusing status names from TanStack query (loading/pending/fetching/idle/...) or following your backend REST endpoint names.
-Event though they are a bit off for your frontend culture. Its easier to consume just one sub-optimal layer of names.
-Than one great but sometimes still need to dig into the second sub-optimal anyway.
+From my experience, it is best to follow the naming of the well-known libraries and external systems you use.
+Like reusing status names from TanStack Query (loading/pending/fetching/idle/...) or following your backend REST endpoint names.
+Even if they are a bit off for your specific frontend case. It's easier to consume just one sub-optimal layer of names
+than a great one on top, when you still sometimes need to dig into the sub-optimal one underneath anyway.
 
 
 
@@ -431,40 +434,41 @@ Than one great but sometimes still need to dig into the second sub-optimal anywa
 
 ## How Much Extra Do You Pay for AI Agents?
 
-You pay up to **30 % more** for over-abstraction for AI agents. How did I get into the number?
+You pay up to **30 % more** for AI agents on an over-abstracted codebase. How did I arrive at that number?
 
-I had a hypothesis. But I do not like to publish just my gut feelings. So I started measuring it.
-Whole experiment can be found on my GitHub repo. Here I will pin just the most important numbers to keep the article digestable.
+I had a hypothesis. But I do not like publishing just my gut feelings. So I started measuring.
+The whole experiment can be found in my GitHub repo. Here I will pin just the most important numbers to keep the article digestible.
 
 The idea was simple. Create two applications. One with nicely collocated code, and one over-abstracted.
-I will call them **collocated** and **abstracted** app.
+I will call them the **collocated** and the **abstracted** app.
 Run an agent with some task on both, measure the cost and time, and compare.
-Spoiler: I spend tens of hours digging into this rabbit hole. :D
+In the end, I spent tens of hours falling down this rabbit hole.
 
-So I did. Two feature identical scientific calculators. Vite, React, Tailwind, SPA. Basic and scientific operations, display, history, theming.
-The over-abstracted one with 12 extra layers of various abstraction.
+So I coded two feature-identical scientific calculators. Vite, React, Tailwind, SPA.
+Basic and scientific operations, display, history, theming.
+The over-abstracted one has 12 extra layers of various abstractions.
 
-The task was to change a color of the equal button. The over-abstracted costs 5x more. Both cost and time wise.
-Imagine paying $5000 instead of $1000. I was shocked. The same time it was hard to believe. 
-I repeated the measurements 10x to be 95% confident that the difference is not just random variation.
+The task for the AI agent was to change the color of the equals button. The over-abstracted one cost 5x more. In both money and time.
+Imagine paying $5000 instead of $1000 on your monthly AI bill. I was shocked. At the same time, it was hard to believe. 
+I repeated the measurements 10x to be >95% confident that the difference was not just random variation.
 Then I started digging deeper.
 
-First thing I wondered was, if the cost was caused by a source code size increase, or abstractions layers.
-I checked the size and it was really bigger. Flat app was 2,000 lines, the over-abstracted is 3,500 lines.
+The first thing I wondered was whether the cost was caused by the increase in source code size, or by the abstraction layers.
+I checked the size and it really was bigger. The collocated app was 2,000 lines, the over-abstracted one 3,500 lines.
 So I created two more calculator variants.
-I took a over-asbtracted one and remove some features, so it lands on rougly 2,000 lines too. 
-And I took a flat calculator and add some more features into it, so it landed rougly 3,500 lines.
+I took the over-abstracted one and removed some features, so it landed at roughly 2,000 lines too. 
+And I took the collocated calculator and added some more features to it, so it landed at roughly 3,500 lines.
 
-I run the task again againts all four apps. This time I saw just 3x increase.
-I also measured number of AI model turn arounds. Usually needed when AI decides to read a file, analyze it and then decide again what to do next.
-There is measurable 2.2x times increase in number of rounds. So I was confident the reasons are really a abstraction layers.
-But the 3x increase was still hardly believable I was not confident to quote it in my article.
-I started digging deepr and analyzing what costs some much.
+I ran the task again against all four apps. This time I saw just a 3x increase. I also measured the number of AI model round trips.
+One is usually needed whenever the AI decides to read a file, analyzes it, and then decides again what to do next.
+There was a measurable 2.2x increase in the number of rounds. So I was confident the reason really was the abstraction layers.
+But the 3x increase was still hard to believe, and I was not confident enough to quote it in my article.
+I started digging deeper and analyzing what costs so much.
 
-I started playing with task prompts. Changing the color is chosen to hit the abstractions hard.
-So I designed 7 different tasks for AI. Including an adding new feature, removing feature, refactor a code, fix a bug.
-One of the task was designed to hit the flat app hard. Change the values inside single over-abstracted layer.
-But changing 12 files in a flat variant.
+I started playing with the task prompts. Changing the color was chosen to hit the abstractions hard.
+So I designed 7 different tasks for the AI. Including adding a new feature, removing a feature, refactoring code, and fixing a bug.
+I even designed one task to hit the collocated app hard. It changes values inside a single over-abstracted layer,
+but 12 files in the collocated variant.
 
 | Task                              | Why                                         | Cost | Time |
 | --------------------------------- | ------------------------------------------- | ---- | ---- |
@@ -476,17 +480,28 @@ But changing 12 files in a flat variant.
 | Find and repair a defect          | finding, rather than specifying             | 0.9x | 1.3x |
 | Restyle twelve keys at once       | the case abstraction is built for           | 0.8x | 0.7x |
 
-The cost varies between 5x - 0.8x. There are tasks on which the over-abstracted app is both cheaper and faster.
-However its good to mention, that for the last task i had to disable bash tooling for the AI agent.
-Otherwise it uses bash `sed` for updating 12 files in a collocated app and was again 1.3x cheaper.
+The cost varies between 0.8x and 5x. There are tasks on which the over-abstracted app is both cheaper and faster.
+However, it's worth mentioning that for the last task I had to disable bash tooling for the AI agent.
+Otherwise it used bash `sed` to update the 12 files in the collocated app and was again 1.3x cheaper.
 
-So the final number depends on what you do with your codebase. But still I wanted something to quote.
-I asked Fable 5 to gather all the information from the experiment and try to extrapolate the numbers
-for a real mid-large codebase under a regular development. It answered 40 % with a model how it got there.
+After running all of those tasks (394 agent runs), I had enough data
+to look at the correlation between round trips, file sizes, costs, and the number of files read.
+It seems the file size increase itself adds very little to the final cost.
+The heaviest contributors to the price are the files read and the round trips.
+Meaning abstractions that stay in the same file are almost free for AI agents.
+Going back to my examples: #1 and #2 are fine for AI. #3, #4, #5 and #6 increase the AI price and time heavily.
 
-For me, the number feels still unexpected and huge. And hard to quote. I would love to continue digging one more level deep.
+I also found that in some situations it is beneficial to have a well-named abstraction.
+It basically behaves like an index for the AI. So it can search the codebase more easily and locate the desired file faster.
+You can see this effect in the "Find and repair a defect" task which decreases the cost by roughly 10 %.
+
+It was obvious that the final cost depends heavily on what the agents do with your codebase. But I still wanted a number to quote.
+So I asked Fable 5 to gather all the information from the experiment and try to extrapolate the numbers
+for a real mid-to-large codebase under regular development. It answered 40 %, along with the method it used to get there.
+
+For me, the number still feels unexpected and huge. Hard to believe. I would love to dig one more level deeper.
 But now I will go to sleep and spend some time with my family.
-After all those hours of playing with it, Im confident enough to quote this:
+Anyway, after all those hours of playing with it, I'm confident enough to quote this:
 
 Over-abstraction has a price: an estimated 30 % increase in your AI agent costs, extrapolated from 394 agent runs on four modeled codebases.
 
@@ -500,19 +515,19 @@ Over-abstraction has a price: an estimated 30 % increase in your AI agent costs,
 
 ## Conclusion
 
-Abstractions can have benefits, and our codebase cannot live without them. But ...
+Abstractions can have benefits, and our codebases cannot live without them. But ...
 
-Every abstraction has a cost. In both human mental load and AI agent bill.
+Every abstraction has a cost. In both human mental load and the AI agent bill.
 We often pay the cost without getting any real benefit.
 
-Every created indirection stacks. Introduced by you, your colleagues, your AI agents.
-Those indirection costs are paid by you, your colleagues, your agents, every time the codebase is read, every day.
+Every indirection created stacks up. Whether introduced by you, your colleagues, or your AI agents.
+Those indirection costs are paid by you, your colleagues, and your agents, every time the codebase is read, every day.
 
-After experiment with 394 agent runs on four codebases I can confidently estimate,
-that development on **over-abstracted codebase costs 30 % more** in AI agent bill and time
-than a development on a collocated one.
+After an experiment with 394 agent runs on four codebases, I can confidently estimate
+that development on an **over-abstracted codebase costs 30 % more** in AI agent bill and time
+than development on a collocated one.
 
-Think before you abstract. Look for overusing it during code reviews. Tell your team. Instruct your agents.
+Think before you abstract. Look for overuse during code reviews. Tell your team. Instruct your agents.
 
 Thank you for reading.
 
