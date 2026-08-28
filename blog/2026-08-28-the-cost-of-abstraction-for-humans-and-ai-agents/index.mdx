@@ -187,9 +187,9 @@ On the worst task I measured, 5x more. On the best one, 20% less.
 How did I arrive at those numbers?
 
 I had a hypothesis. But I do not like publishing just my gut feelings. So I started measuring.
-The whole experiment can be found in my [GitHub repo](https://github.com/ondrejvelisek/ondrejvelisek.github.io/tree/main/token-abstraction-cost-experiment).
-Here I will pin just the most important numbers to keep the article digestible.
 In the end, I spent tens of hours falling down this rabbit hole.
+The whole experiment can be found in my [GitHub repo](https://github.com/ondrejvelisek/ondrejvelisek.github.io/tree/main/token-abstraction-cost-experiment).
+Here I will pin just the most important numbers to keep the article digestible. 
 
 ### First naive attempt
 
@@ -201,10 +201,12 @@ I coded two feature-identical scientific calculators. Vite, React, Tailwind, SPA
 Basic and scientific operations, display, history, theming.
 The over-abstracted one has 12 extra layers of various abstractions.
 I know the 12 layers is extreme for such a small app but I wanted to make the effect big enough to be measured.
+However same 12 layers in mid-large codebase is in my experience a standard.
 
-I used Sonnet 5 model. The task for the AI agent was to change the color of the equals button. The over-abstracted one cost 5x more. In both money and time.
+I used model Sonnet 5. The task for the AI agent was to change the color of the equals button.
+The over-abstracted one cost 5x more. In both money and time.
 Imagine paying $5000 instead of $1000 on your monthly AI bill. I was shocked. At the same time, it was hard to believe. 
-I repeated the measurements 10x to be >95% confident that the difference was not just random variation.
+I repeated the measurements 10x to be >95% confident that the difference was not just random variation. Same result.
 Then I started digging deeper.
 
 <div className="[&_img]:rounded-xl">
@@ -253,6 +255,7 @@ Otherwise it used bash `sed` to update the 12 files in the collocated app and th
 After running all of those tasks (394 agent runs), I had enough data
 to look at the correlation between round trips, file sizes, costs, and the number of files read.
 It seems the file size increase itself adds little to the final cost.
+I think it is beacuse of a context cache.
 The heaviest contributors to the price are the files read and the round trips.
 Meaning abstractions that stay in the same file are almost free for AI agents.
 The ones that cross file boundaries are the expensive ones. Keep this in mind for the [examples below](#examples).
@@ -494,7 +497,7 @@ instead of the child. This way we have both the context and prop drilling.
 We get the disadvantages of both patterns.
 
 The rule of thumb here is to hook into the context from the deepest component that is scoped to it.
-In other words, the closest place to where the context value is used.
+In other words, the closest to where the context value is used.
 
 In this example, we move the `useDeleteAccountContext` hook from the parent `DeleteAccountModal` to the child `DeleteAccountButton`.
 But not deeper into the general `Button` component,
@@ -571,8 +574,8 @@ After an experiment with 394 agent runs on four codebases, I estimate
 that development on **an over-abstracted codebase costs 30% more**
 in AI agent bill and time than development on a collocated one.
 
-After realizing the cost, I started to use these rules.
-Making them openly available here: <a href="/no-over-abstraction.md" download>no-over-abstraction.md</a>.
+After realizing the cost, I started to use these rules: <a href="/no-over-abstraction.md" download>no-over-abstraction.md</a>.
+Making them openly available here.
 Hoping it will help you to reduce both mental load and AI bill.
 
 Think before you abstract. Look for overuse during code reviews. Tell your team. Instruct your agents.
