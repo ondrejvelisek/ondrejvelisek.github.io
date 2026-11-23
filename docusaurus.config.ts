@@ -137,6 +137,11 @@ const config: Config = {
           line: "error-msg-next-line",
           block: { start: "error-msg-start", end: "error-msg-end" },
         },
+        {
+          className: "code-block-dimmed-line",
+          line: "dim-next-line",
+          block: { start: "dim-start", end: "dim-end" },
+        },
       ],
     },
   } satisfies Preset.ThemeConfig,

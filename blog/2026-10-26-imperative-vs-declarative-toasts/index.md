@@ -4,6 +4,6 @@ draft: true
 
 # Imperative vs. declarative toasts
 
-toaster.toast() vs. <Toast/>
+`toaster.toast()` vs. `<Toast/>`
 
 <!-- truncate -->

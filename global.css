@@ -30,6 +30,14 @@
 
 :root {
     --docusaurus-highlighted-code-line-bg: #ffbb0022;
+    /* The theme default is a light gray that is far too loud on the dark background. */
+    --ifm-hr-background-color: var(--ifm-color-emphasis-200);
+}
+
+/* Less important lines, e.g. boilerplate that is not the point of the example */
+.code-block-dimmed-line {
+    display: block;
+    opacity: 0.4;
 }
 
 .code-block-error-msg .token {
