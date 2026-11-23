@@ -13,7 +13,7 @@
             <link>https://ondrejvelisek.github.io/view-transitions-in-depth/</link>
             <guid>https://ondrejvelisek.github.io/view-transitions-in-depth/</guid>
             <pubDate>Mon, 23 Nov 2026 00:00:00 GMT</pubDate>
-            <description><![CDATA[We've all seen those magical View Transitions demos.]]></description>
+            <description><![CDATA[We’ve all seen those magical View Transitions demos. Yet they are still used so little. I know ... All those pseudo-elements sound scary. I’ll show you there is nothing to be afraid of. First a three-step tutorial on the fundamentals. Then two chapters of practical tips and tricks beyond them.]]></description>
             <content:encoded><![CDATA[<p>We've all seen those magical View Transitions demos.
 Yet they are still used so little.
 I know ... All those pseudo-elements sound scary.
